@@ -45,7 +45,7 @@
             
             <nav class="hidden md:flex items-center space-x-8 text-sm tracking-widest uppercase font-medium">
                 <button onclick="switchPage('catalog')" class="hover:text-champagne transition">Catalog</button>
-                <button onclick="switchPage('mission')" class="hover:text-champagne transition">Our Mission</button>
+                <button onclick="switchPage('mission')" class="hover:text-champagne transition">About Us</button>
                 <button onclick="switchPage('contact')" class="hover:text-champagne transition">Contact</button>
             </nav>
 
@@ -63,7 +63,7 @@
 
     <!-- VIEWS CONTAINER -->
     
-    <!-- VIEW 1: HOME PAGE (Updated with Cinematic High-End Jewelry Hero Image) -->
+    <!-- VIEW 1: HOME PAGE -->
     <div id="page-home" class="page-view">
         <section class="relative bg-cream py-24 md:py-32 px-6 overflow-hidden">
             <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
@@ -75,17 +75,16 @@
                     <p class="text-muted text-base md:text-lg font-light leading-relaxed max-w-lg">
                         Founded in 2023 by Shimon Elbaz, Lumière provides sustainable, trending, and flawless high-end lab-grown diamond jewelry at an accessible standard.
                     </p>
-                    <div class="pt-4 flex items-center space-x-4">
+                    <div class="pt-4 flex flex-wrap items-center gap-4">
                         <button onclick="switchPage('catalog')" class="bg-charcoal text-ivory px-8 py-4 text-xs tracking-[0.2em] uppercase hover:bg-champagne transition duration-300">
                             Explore Collection
                         </button>
                         <button onclick="switchPage('mission')" class="border border-charcoal/30 px-8 py-4 text-xs tracking-[0.2em] uppercase hover:border-champagne hover:text-champagne transition duration-300">
-                            Our Mission & Science
+                            About Us &amp; Science
                         </button>
                     </div>
                 </div>
                 <div class="relative h-[400px] md:h-[500px] shadow-2xl">
-                    <!-- High-end cinematic jewelry hero photography -->
                     <img src="https://images.unsplash.com/photo-1744369382892-eb5b6a2fdc6f?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D" alt="Cinematic Luxury Diamond Jewelry" class="w-full h-full object-cover">
                 </div>
             </div>
@@ -154,7 +153,7 @@
             <!-- Loading State -->
             <div id="loading-state" class="py-24 text-center">
                 <div class="inline-block w-8 h-8 border-2 border-champagne border-t-transparent rounded-full animate-spin mb-4"></div>
-                <p class="text-sm tracking-widest uppercase text-muted">Connecting to Live Google Sheet...</p>
+                <p class="text-sm tracking-widest uppercase text-muted">Loading Our Collection...</p>
             </div>
 
             <!-- Empty State -->
@@ -167,49 +166,105 @@
         </main>
     </div>
 
-    <!-- VIEW 3: OUR MISSION & SCIENCE PAGE -->
+    <!-- VIEW 3: ABOUT US & LAB-GROWN SCIENCE PAGE -->
     <div id="page-mission" class="page-view hidden">
-        <div class="max-w-4xl mx-auto px-6 py-16 space-y-12">
+        <div class="max-w-5xl mx-auto px-6 py-16 space-y-16">
             <div class="flex items-center justify-between">
                 <button onclick="switchPage('home')" class="text-xs uppercase tracking-widest text-muted hover:text-charcoal flex items-center gap-2">
                     <i class="fas fa-arrow-left"></i> Back to Home
                 </button>
             </div>
 
-            <div class="text-center space-y-4">
-                <span class="text-xs uppercase tracking-[0.2em] text-champagne-dark">Our Maison & Vision</span>
-                <h1 class="font-serif text-4xl md:text-5xl">The Lumière Story & Lab-Grown Science</h1>
-                <div class="w-12 h-[1px] bg-champagne mx-auto"></div>
+            <!-- Section Header -->
+            <div class="text-center space-y-4 max-w-3xl mx-auto">
+                <span class="text-xs uppercase tracking-[0.25em] text-champagne-dark font-semibold">About Us</span>
+                <h1 class="font-serif text-4xl md:text-5xl text-charcoal font-normal">Modern Luxury, Perfected by Science</h1>
+                <p class="text-muted font-light text-base leading-relaxed">
+                    Redefining fine jewelry through <strong class="font-medium text-charcoal">extraordinary craftsmanship</strong>, <strong class="font-medium text-charcoal">certified brilliance</strong>, and <strong class="font-medium text-charcoal">transparent value</strong>.
+                </p>
+                <div class="w-12 h-[1px] bg-champagne mx-auto pt-2"></div>
             </div>
 
+            <!-- Brand Story Card -->
             <div class="bg-white p-8 md:p-12 border border-cream shadow-sm space-y-6 text-muted font-light leading-relaxed">
-                <h3 class="font-serif text-2xl text-charcoal font-normal">Founded by Shimon Elbaz in 2023</h3>
+                <div class="space-y-2">
+                    <span class="text-[11px] uppercase tracking-[0.2em] text-champagne-dark font-semibold">Our Heritage</span>
+                    <h2 class="font-serif text-2xl md:text-3xl text-charcoal font-normal">Founded by Shimon Elbaz in 2023</h2>
+                </div>
                 <p>
-                    Lumière was established in 2023 by founder <b>Shimon Elbaz</b> with a clear, transformative vision: to solve the high-cost, exclusive barrier of traditional fine jewelry by offering a sustainable, trending, and perfect-quality alternative. We believe that celebrating life's most precious milestones with breathtaking diamond jewelry should never compromise ethical integrity or financial accessibility.
+                    Lumière was established in 2023 by founder <strong class="font-semibold text-charcoal">Shimon Elbaz</strong> with a clear, transformative vision: to remove the artificial markup and exclusivity barriers of traditional diamond retail by offering <strong class="font-medium text-charcoal">trending, heirloom-grade fine jewelry</strong> at an honest standard.
                 </p>
                 <p>
-                    By specializing in premium lab-grown diamonds, Lumière bridges uncompromising luxury with modern technological innovation.
+                    We believe celebrating life’s milestones with breathtaking diamonds should never require compromising on <strong class="font-medium text-charcoal">stone quality</strong>, <strong class="font-medium text-charcoal">ethical origin</strong>, or <strong class="font-medium text-charcoal">financial clarity</strong>. By pairing precision goldsmithing with top-tier lab-grown diamonds, Lumière delivers pure radiance built to endure for generations.
                 </p>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-                <div class="space-y-4">
-                    <h3 class="font-serif text-2xl text-charcoal">The Science Behind Lab-Grown Diamonds</h3>
+            <!-- Myth vs. Reality & Science Split Section -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+                <div class="space-y-5">
+                    <span class="text-xs uppercase tracking-[0.2em] text-champagne-dark font-semibold block">100% Real Diamonds • Atom for Atom</span>
+                    <h3 class="font-serif text-3xl text-charcoal font-normal leading-snug">The Science Behind Lab-Grown Diamonds</h3>
                     <p class="text-muted font-light text-sm leading-relaxed">
-                        A common misconception is that lab-grown diamonds are "simulants" like cubic zirconia or moissanite. In reality, lab-grown diamonds are **100% real diamonds**. 
+                        A common myth is that lab-grown diamonds are "simulants" like cubic zirconia or moissanite. In reality, <strong class="font-semibold text-charcoal">lab-grown diamonds are 100% real diamonds</strong>—chemically, physically, and optically identical to stones mined from the Earth.
                     </p>
                     <p class="text-muted font-light text-sm leading-relaxed">
-                        Grown using advanced technological methods (such as HPHT and CVD) that replicate the extreme heat and pressure of the Earth's mantle, lab-grown diamonds possess the exact same crystal lattice structure, chemical composition, refractive index, and thermal conductivity as mined diamonds. Even professional gemological equipment cannot tell them apart because physically, optically, and chemically, they are identical.
+                        The only difference is origin. Instead of forming over billions of years underground, our diamonds are grown in controlled environments that replicate the <strong class="font-medium text-charcoal">extreme heat (over 1,500°C)</strong> and <strong class="font-medium text-charcoal">crushing pressure (870,000+ PSI)</strong> of the Earth’s mantle—producing pure crystallized carbon with zero mining disruption.
                     </p>
+                    <div class="pt-2 border-t border-cream space-y-2 text-xs text-muted font-light">
+                        <p><strong class="font-semibold text-charcoal uppercase tracking-wider">HPHT (High Pressure, High Temperature):</strong> Mimics natural geological diamond growth using intense heat and pressure on a pure diamond seed.</p>
+                        <p><strong class="font-semibold text-charcoal uppercase tracking-wider">CVD (Chemical Vapor Deposition):</strong> Grows ultra-pure Type IIa diamond crystals layer by layer from carbon-rich plasma.</p>
+                    </div>
                 </div>
-                <div class="h-[350px] shadow-lg bg-cream">
+                <div class="h-[420px] shadow-lg bg-cream overflow-hidden">
                     <img src="https://images.unsplash.com/photo-1624588057318-5f1b2eb81012?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D" alt="Lab Grown Diamond Science" class="w-full h-full object-cover">
+                </div>
+            </div>
+
+            <!-- 4 Fascinating Diamond Facts Grid -->
+            <div class="space-y-6">
+                <div class="text-center space-y-2">
+                    <span class="text-xs uppercase tracking-[0.2em] text-champagne-dark font-semibold">By The Numbers</span>
+                    <h3 class="font-serif text-2xl md:text-3xl text-charcoal font-normal">Why Discerning Buyers Choose Lab-Grown</h3>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="bg-white p-6 border border-cream shadow-sm space-y-3">
+                        <span class="font-serif text-3xl text-champagne-dark block">10 / 10</span>
+                        <h4 class="text-xs uppercase tracking-[0.15em] font-semibold text-charcoal">Mohs Hardness</h4>
+                        <p class="text-xs text-muted font-light leading-relaxed">
+                            Built on an identical <strong class="font-medium text-charcoal">isometric carbon lattice</strong>—the hardest natural substance on Earth, never clouding or scratching over time.
+                        </p>
+                    </div>
+
+                    <div class="bg-white p-6 border border-cream shadow-sm space-y-3">
+                        <span class="font-serif text-3xl text-champagne-dark block">2.417</span>
+                        <h4 class="text-xs uppercase tracking-[0.15em] font-semibold text-charcoal">Refractive Index</h4>
+                        <p class="text-xs text-muted font-light leading-relaxed">
+                            Delivers the exact same <strong class="font-medium text-charcoal">fire, dispersion, and sparkle</strong> as mined diamonds—even standard diamond testers read them identically.
+                        </p>
+                    </div>
+
+                    <div class="bg-white p-6 border border-cream shadow-sm space-y-3">
+                        <span class="font-serif text-3xl text-champagne-dark block">Top 2%</span>
+                        <h4 class="text-xs uppercase tracking-[0.15em] font-semibold text-charcoal">Type IIa Purity</h4>
+                        <p class="text-xs text-muted font-light leading-relaxed">
+                            Most Lumière diamonds belong to the <strong class="font-medium text-charcoal">rarest chemical purity class</strong>—a grade achieved by fewer than 2% of mined diamonds.
+                        </p>
+                    </div>
+
+                    <div class="bg-white p-6 border border-cream shadow-sm space-y-3">
+                        <span class="font-serif text-3xl text-champagne-dark block">GIA &amp; IGI</span>
+                        <h4 class="text-xs uppercase tracking-[0.15em] font-semibold text-charcoal">Certified Authentic</h4>
+                        <p class="text-xs text-muted font-light leading-relaxed">
+                            Graded on the exact same <strong class="font-medium text-charcoal">4Cs scale (Cut, Color, Clarity, Carat)</strong> by the world’s leading independent gemological institutes.
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- VIEW 4: CONTACT PAGE (Updated with Instagram directly under WhatsApp) -->
+    <!-- VIEW 4: CONTACT PAGE -->
     <div id="page-contact" class="page-view hidden">
         <div class="max-w-3xl mx-auto px-6 py-16 space-y-8">
             <div class="flex items-center justify-between">
@@ -220,7 +275,7 @@
 
             <div class="text-center space-y-3">
                 <span class="text-xs uppercase tracking-[0.2em] text-champagne-dark">Get in Touch</span>
-                <h1 class="font-serif text-3xl md:text-4xl">Client Concierge & Inquiries</h1>
+                <h1 class="font-serif text-3xl md:text-4xl">Client Concierge &amp; Inquiries</h1>
                 <div class="w-12 h-[1px] bg-champagne mx-auto"></div>
             </div>
 
