@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lumière | Fine Lab-Grown Diamond Jewelry</title>
+    <meta name="description" content="Discover exquisite, sustainable lab-grown diamond jewelry by Lumière, founded by Shimon Elbaz in 2023.">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        ivory: '#FBF9F5',
+                        cream: '#F2EDE4',
+                        champagne: '#D4AF37',
+                        'champagne-dark': '#B38F27',
+                        charcoal: '#222222',
+                        muted: '#666666'
+                    },
+                    fontFamily: {
+                        serif: ['Playfair Display', 'Georgia', 'serif'],
+                        sans: ['Inter', 'Helvetica', 'Arial', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-ivory text-charcoal font-sans antialiased selection:bg-champagne selection:text-white">
+
+    <!-- Top Announcement Bar -->
+    <div class="bg-charcoal text-ivory text-xs py-2 px-4 text-center tracking-widest uppercase">
+        Complimentary Insured Shipping & Direct Bespoke Consultations
+    </div>
+
+    <!-- Header / Navigation -->
+    <header class="sticky top-0 z-40 bg-ivory/95 backdrop-blur-md border-b border-cream">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <a href="#" onclick="switchPage('home')" class="font-serif text-2xl md:text-3xl tracking-widest text-charcoal font-bold">LUMIÈRE</a>
+            
+            <nav class="hidden md:flex items-center space-x-8 text-sm tracking-widest uppercase font-medium">
+                <button onclick="switchPage('catalog')" class="hover:text-champagne transition">Catalog</button>
+                <button onclick="switchPage('mission')" class="hover:text-champagne transition">Our Mission</button>
+                <button onclick="switchPage('contact')" class="hover:text-champagne transition">Contact</button>
+            </nav>
+
+            <div class="flex items-center space-x-5">
+                <button onclick="openFavoritesModal()" class="relative p-2 hover:text-champagne transition" title="Wishlist">
+                    <i class="far fa-heart text-xl"></i>
+                    <span id="favorites-badge" class="absolute top-0 right-0 bg-champagne text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold hidden">0</span>
+                </button>
+                <a id="nav-whatsapp-btn" href="#" target="_blank" class="hidden sm:inline-flex items-center gap-2 border border-champagne text-champagne-dark px-4 py-2 text-xs tracking-widest uppercase hover:bg-champagne hover:text-white transition">
+                    <i class="fab fa-whatsapp"></i><span>Inquire</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- VIEWS CONTAINER -->
+    
+    <!-- VIEW 1: HOME PAGE (Updated with Cinematic High-End Jewelry Hero Image) -->
+    <div id="page-home" class="page-view">
+        <section class="relative bg-cream py-24 md:py-32 px-6 overflow-hidden">
+            <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                <div class="space-y-6">
+                    <span class="text-xs uppercase tracking-[0.25em] text-champagne-dark font-semibold">Fine Lab-Grown Diamond Jewelry</span>
+                    <h1 class="font-serif text-4xl md:text-6xl leading-tight font-normal text-charcoal">
+                        Timeless Elegance, <br><span class="italic font-light">Brilliantly</span> Crafted.
+                    </h1>
+                    <p class="text-muted text-base md:text-lg font-light leading-relaxed max-w-lg">
+                        Founded in 2023 by Shimon Elbaz, Lumière provides sustainable, trending, and flawless high-end lab-grown diamond jewelry at an accessible standard.
+                    </p>
+                    <div class="pt-4 flex items-center space-x-4">
+                        <button onclick="switchPage('catalog')" class="bg-charcoal text-ivory px-8 py-4 text-xs tracking-[0.2em] uppercase hover:bg-champagne transition duration-300">
+                            Explore Collection
+                        </button>
+                        <button onclick="switchPage('mission')" class="border border-charcoal/30 px-8 py-4 text-xs tracking-[0.2em] uppercase hover:border-champagne hover:text-champagne transition duration-300">
+                            Our Mission & Science
+                        </button>
+                    </div>
+                </div>
+                <div class="relative h-[400px] md:h-[500px] shadow-2xl">
+                    <!-- High-end cinematic jewelry hero photography -->
+                    <img src="https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=1200&q=90" alt="Cinematic Luxury Diamond Jewelry" class="w-full h-full object-cover">
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- VIEW 2: CATALOG PAGE -->
+    <div id="page-catalog" class="page-view hidden">
+        <main class="max-w-7xl mx-auto px-6 py-16">
+            <div class="flex items-center justify-between mb-8">
+                <button onclick="switchPage('home')" class="text-xs uppercase tracking-widest text-muted hover:text-charcoal flex items-center gap-2">
+                    <i class="fas fa-arrow-left"></i> Back to Home
+                </button>
+            </div>
+            
+            <div class="text-center max-w-2xl mx-auto mb-12 space-y-3">
+                <span class="text-xs uppercase tracking-[0.2em] text-champagne-dark">Curated Collection</span>
+                <h2 class="font-serif text-3xl md:text-4xl">The Live Inventory Catalog</h2>
+                <p class="text-xs text-muted">Showing unique model designs with real-time stock levels.</p>
+                <div class="w-12 h-[1px] bg-champagne mx-auto mt-4"></div>
+            </div>
+
+            <!-- Catalog Controls -->
+            <div class="bg-white p-6 border border-cream shadow-sm mb-12 space-y-6">
+                <div class="relative">
+                    <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-muted text-sm"></i>
+                    <input type="text" id="search-input" placeholder="Search by model number, metal, description or diamond specs..." 
+                           class="w-full pl-12 pr-4 py-3 bg-ivory border border-cream text-sm focus:outline-none focus:border-champagne transition">
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs uppercase tracking-wider text-muted mb-2">Category</label>
+                        <select id="category-filter" class="w-full p-3 bg-ivory border border-cream text-sm focus:outline-none focus:border-champagne transition">
+                            <option value="all">All Categories</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs uppercase tracking-wider text-muted mb-2">Metal Type</label>
+                        <select id="metal-filter" class="w-full p-3 bg-ivory border border-cream text-sm focus:outline-none focus:border-champagne transition">
+                            <option value="all">All Metals</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs uppercase tracking-wider text-muted mb-2">Sort By</label>
+                        <select id="sort-select" class="w-full p-3 bg-ivory border border-cream text-sm focus:outline-none focus:border-champagne transition">
+                            <option value="default">Featured Order</option>
+                            <option value="price-asc">Price: Low to High</option>
+                            <option value="price-desc">Price: High to Low</option>
+                            <option value="carat-desc">Carat Weight: High to Low</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between pt-2 border-t border-cream text-xs text-muted">
+                    <span id="results-count">Loading live inventory...</span>
+                    <button onclick="resetFilters()" class="hover:text-champagne underline">Reset All Filters</button>
+                </div>
+            </div>
+
+            <!-- Product Grid -->
+            <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+
+            <!-- Loading State -->
+            <div id="loading-state" class="py-24 text-center">
+                <div class="inline-block w-8 h-8 border-2 border-champagne border-t-transparent rounded-full animate-spin mb-4"></div>
+                <p class="text-sm tracking-widest uppercase text-muted">Connecting to Live Google Sheet...</p>
+            </div>
+
+            <!-- Empty State -->
+            <div id="empty-state" class="hidden py-24 text-center space-y-4">
+                <i class="far fa-gem text-4xl text-champagne"></i>
+                <h3 class="font-serif text-xl">No matching pieces found</h3>
+                <p class="text-muted text-sm">Try adjusting your search terms or filter criteria.</p>
+                <button onclick="resetFilters()" class="mt-4 bg-charcoal text-ivory px-6 py-3 text-xs uppercase tracking-widest">Clear Filters</button>
+            </div>
+        </main>
+    </div>
+
+    <!-- VIEW 3: OUR MISSION & SCIENCE PAGE -->
+    <div id="page-mission" class="page-view hidden">
+        <div class="max-w-4xl mx-auto px-6 py-16 space-y-12">
+            <div class="flex items-center justify-between">
+                <button onclick="switchPage('home')" class="text-xs uppercase tracking-widest text-muted hover:text-charcoal flex items-center gap-2">
+                    <i class="fas fa-arrow-left"></i> Back to Home
+                </button>
+            </div>
+
+            <div class="text-center space-y-4">
+                <span class="text-xs uppercase tracking-[0.2em] text-champagne-dark">Our Maison & Vision</span>
+                <h1 class="font-serif text-4xl md:text-5xl">The Lumière Story & Lab-Grown Science</h1>
+                <div class="w-12 h-[1px] bg-champagne mx-auto"></div>
+            </div>
+
+            <div class="bg-white p-8 md:p-12 border border-cream shadow-sm space-y-6 text-muted font-light leading-relaxed">
+                <h3 class="font-serif text-2xl text-charcoal font-normal">Founded by Shimon Elbaz in 2023</h3>
+                <p>
+                    Lumière was established in 2023 by founder <b>Shimon Elbaz</b> with a clear, transformative vision: to solve the high-cost, exclusive barrier of traditional fine jewelry by offering a sustainable, trending, and perfect-quality alternative. We believe that celebrating life's most precious milestones with breathtaking diamond jewelry should never compromise ethical integrity or financial accessibility.
+                </p>
+                <p>
+                    By specializing in premium lab-grown diamonds, Lumière bridges uncompromising luxury with modern technological innovation.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                <div class="space-y-4">
+                    <h3 class="font-serif text-2xl text-charcoal">The Science Behind Lab-Grown Diamonds</h3>
+                    <p class="text-muted font-light text-sm leading-relaxed">
+                        A common misconception is that lab-grown diamonds are "simulants" like cubic zirconia or moissanite. In reality, lab-grown diamonds are **100% real diamonds**. 
+                    </p>
+                    <p class="text-muted font-light text-sm leading-relaxed">
+                        Grown using advanced technological methods (such as HPHT and CVD) that replicate the extreme heat and pressure of the Earth's mantle, lab-grown diamonds possess the exact same crystal lattice structure, chemical composition, refractive index, and thermal conductivity as mined diamonds. Even professional gemological equipment cannot tell them apart because physically, optically, and chemically, they are identical.
+                    </p>
+                </div>
+                <div class="h-[350px] shadow-lg bg-cream">
+                    <img src="https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=800&q=80" alt="Lab Grown Diamond Science" class="w-full h-full object-cover">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- VIEW 4: CONTACT PAGE (Updated with Instagram directly under WhatsApp) -->
+    <div id="page-contact" class="page-view hidden">
+        <div class="max-w-3xl mx-auto px-6 py-16 space-y-8">
+            <div class="flex items-center justify-between">
+                <button onclick="switchPage('home')" class="text-xs uppercase tracking-widest text-muted hover:text-charcoal flex items-center gap-2">
+                    <i class="fas fa-arrow-left"></i> Back to Home
+                </button>
+            </div>
+
+            <div class="text-center space-y-3">
+                <span class="text-xs uppercase tracking-[0.2em] text-champagne-dark">Get in Touch</span>
+                <h1 class="font-serif text-3xl md:text-4xl">Client Concierge & Inquiries</h1>
+                <div class="w-12 h-[1px] bg-champagne mx-auto"></div>
+            </div>
+
+            <div class="bg-white p-8 md:p-12 border border-cream shadow-sm space-y-6 text-center">
+                <p class="text-muted text-sm">We provide direct concierge support via WhatsApp for custom fittings, order assistance, and bespoke consultations, as well as showcasing our daily collections on Instagram.</p>
+                
+                <div class="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
+                    <a id="contact-whatsapp-btn" href="#" target="_blank" class="w-full sm:w-auto inline-flex items-center justify-center gap-3 bg-charcoal text-ivory px-8 py-4 text-xs tracking-[0.2em] uppercase hover:bg-champagne transition">
+                        <i class="fab fa-whatsapp text-lg"></i> Open WhatsApp Concierge
+                    </a>
+                    <a href="https://www.instagram.com/lumiere_finejewelry" target="_blank" class="w-full sm:w-auto inline-flex items-center justify-center gap-3 border border-charcoal/30 text-charcoal px-8 py-4 text-xs tracking-[0.2em] uppercase hover:border-champagne hover:text-champagne transition">
+                        <i class="fab fa-instagram text-lg"></i> Follow on Instagram
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-charcoal text-ivory py-16 px-6 mt-20">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12">
+            <div class="space-y-4">
+                <h3 class="font-serif text-2xl tracking-widest">LUMIÈRE</h3>
+                <p class="text-xs text-gray-400 tracking-wider">Direct-to-Consumer Fine Lab-Grown Diamond Jewelry.</p>
+            </div>
+            <div class="space-y-3 text-xs tracking-wider text-gray-300">
+                <h4 class="font-bold uppercase tracking-widest text-white mb-4">Client Care</h4>
+                <p><i class="fab fa-whatsapp mr-2 text-champagne"></i> WhatsApp Support Available</p>
+                <p><i class="far fa-envelope mr-2 text-champagne"></i> Direct Consultation Concierge</p>
+            </div>
+            <div class="space-y-3 text-xs tracking-wider text-gray-300">
+                <h4 class="font-bold uppercase tracking-widest text-white mb-4">Connect with Us</h4>
+                <div class="flex space-x-4">
+                    <a id="footer-whatsapp-btn" href="#" target="_blank" class="w-10 h-10 border border-gray-700 flex items-center justify-center hover:border-champagne hover:text-champagne transition"><i class="fab fa-whatsapp text-lg"></i></a>
+                    <a href="https://www.instagram.com/lumiere_finejewelry" target="_blank" class="w-10 h-10 border border-gray-700 flex items-center justify-center hover:border-champagne hover:text-champagne transition"><i class="fab fa-instagram text-lg"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto mt-16 pt-8 border-t border-gray-800 text-center text-xs text-gray-500">
+            &copy; 2026 Lumière (D.O.D GROUP). All Rights Reserved.
+        </div>
+    </footer>
+
+    <!-- Product Detail Modal -->
+    <div id="product-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-4xl max-h-[90vh] overflow-y-auto relative shadow-2xl flex flex-col md:flex-row">
+            <button onclick="closeProductModal()" class="absolute top-4 right-4 z-10 w-10 h-10 bg-ivory flex items-center justify-center text-charcoal hover:bg-champagne hover:text-white transition">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="w-full md:w-1/2 bg-cream h-[300px] md:h-[500px]">
+                <img id="modal-image" src="" alt="Jewelry Piece" class="w-full h-full object-cover">
+            </div>
+            <div id="modal-details-container" class="w-full md:w-1/2 p-8 space-y-6 flex flex-col justify-between"></div>
+        </div>
+    </div>
+
+    <!-- Favorites / Wishlist Slide-Over Drawer -->
+    <div id="favorites-drawer" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex justify-end">
+        <div class="bg-white w-full max-w-md h-full shadow-2xl flex flex-col">
+            <div class="p-6 border-b border-cream flex items-center justify-between">
+                <h3 class="font-serif text-xl">Your Wishlist</h3>
+                <button onclick="closeFavoritesModal()" class="w-8 h-8 flex items-center justify-center text-muted hover:text-charcoal"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="favorites-list-container" class="flex-1 overflow-y-auto p-6 space-y-4"></div>
+            <div class="p-6 border-t border-cream space-y-4 bg-ivory">
+                <button onclick="inquireWishlistWhatsApp()" class="w-full bg-champagne text-white py-4 text-xs tracking-[0.2em] uppercase hover:bg-champagne-dark transition flex items-center justify-center gap-2">
+                    <i class="fab fa-whatsapp text-base"></i> Inquire About All Favorites
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Core Logic Scripts -->
+    <script src="config.js"></script>
+    <script>
+        function switchPage(pageId) {
+            document.querySelectorAll('.page-view').forEach(el => el.classList.add('hidden'));
+            const target = document.getElementById('page-' + pageId);
+            if (target) {
+                target.classList.remove('hidden');
+                window.scrollTo(0, 0);
+            }
+        }
+    </script>
+    <script src="app.js"></script>
+</body>
+</html>
