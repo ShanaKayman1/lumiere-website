@@ -30,6 +30,23 @@
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Smooth bottom-to-top scroll reveal for catalog cards & collage items */
+        #product-grid > div,
+        .reveal-on-scroll {
+            opacity: 0;
+            transform: translateY(32px);
+            transition: opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+                        transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+            will-change: opacity, transform;
+        }
+
+        #product-grid > div.is-visible,
+        .reveal-on-scroll.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
 </head>
 <body class="bg-ivory text-charcoal font-sans antialiased selection:bg-champagne selection:text-white">
 
@@ -59,13 +76,22 @@
                 </a>
             </div>
         </div>
+
+        <!-- Mobile Sub-Navigation -->
+        <nav class="flex md:hidden items-center justify-center space-x-6 py-2.5 border-t border-cream bg-ivory text-xs tracking-widest uppercase font-medium">
+            <button onclick="switchPage('home')" class="hover:text-champagne transition">Home</button>
+            <button onclick="switchPage('catalog')" class="hover:text-champagne transition">Catalog</button>
+            <button onclick="switchPage('mission')" class="hover:text-champagne transition">About Us</button>
+            <button onclick="switchPage('contact')" class="hover:text-champagne transition">Contact</button>
+        </nav>
     </header>
 
     <!-- VIEWS CONTAINER -->
     
     <!-- VIEW 1: HOME PAGE -->
     <div id="page-home" class="page-view">
-        <section class="relative bg-cream py-24 md:py-32 px-6 overflow-hidden">
+        <!-- Hero Section (Preserving Existing Hero Image) -->
+        <section class="relative bg-cream py-20 md:py-28 px-6 overflow-hidden">
             <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
                 <div class="space-y-6">
                     <span class="text-xs uppercase tracking-[0.25em] text-champagne-dark font-semibold">Fine Lab-Grown Diamond Jewelry</span>
@@ -73,7 +99,7 @@
                         Timeless Elegance, <br><span class="italic font-light">Brilliantly</span> Crafted.
                     </h1>
                     <p class="text-muted text-base md:text-lg font-light leading-relaxed max-w-lg">
-                        Founded in 2023 by Shimon Elbaz, Lumière provides sustainable, trending, and flawless high-end lab-grown diamond jewelry at an accessible standard.
+                        Founded in 2023 by Shimon Elbaz, Lumière crafts sustainable, modern, and certified lab-grown diamond jewelry with uncompromising brilliance.
                     </p>
                     <div class="pt-4 flex flex-wrap items-center gap-4">
                         <button onclick="switchPage('catalog')" class="bg-charcoal text-ivory px-8 py-4 text-xs tracking-[0.2em] uppercase hover:bg-champagne transition duration-300">
@@ -85,8 +111,113 @@
                     </div>
                 </div>
                 <div class="relative h-[400px] md:h-[500px] shadow-2xl">
-                    <img src="https://images.unsplash.com/photo-1762505464512-576261d11034?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D" alt="Cinematic Luxury Diamond Jewelry" class="w-full h-full object-cover">
+                    <img src="https://images.unsplash.com/photo-1744369382892-eb5b6a2fdc6f?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D" alt="Cinematic Luxury Diamond Jewelry" class="w-full h-full object-cover">
                 </div>
+            </div>
+        </section>
+
+        <!-- 7-Image Editorial Collage with Scroll-Slide Effect -->
+        <section class="max-w-7xl mx-auto px-6 py-24 space-y-14">
+            <div class="reveal-on-scroll text-center max-w-2xl mx-auto space-y-3">
+                <span class="text-xs uppercase tracking-[0.25em] text-champagne-dark font-semibold">The Lumière Gallery</span>
+                <h2 class="font-serif text-3xl md:text-4xl text-charcoal font-normal">Designed to Capture Every Ray of Light</h2>
+                <p class="text-muted text-sm font-light leading-relaxed">
+                    Explore our curated universe of <strong class="font-medium text-charcoal">iconic solitaires</strong>, <strong class="font-medium text-charcoal">eternity bands</strong>, and <strong class="font-medium text-charcoal">everyday diamond essentials</strong>.
+                </p>
+                <div class="w-12 h-[1px] bg-champagne mx-auto pt-2"></div>
+            </div>
+
+            <!-- Row 1: Asymmetric 3-Photo Editorial Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+                <!-- Tall Feature Left -->
+                <div onclick="switchPage('catalog')" class="reveal-on-scroll md:col-span-5 md:row-span-2 relative group overflow-hidden bg-cream h-[400px] md:h-[620px] cursor-pointer shadow-sm">
+                    <img src="https://images.unsplash.com/photo-1763029513623-37d488cb97b1?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D"
+                         alt="Signature Diamond Ring"
+                         class="w-full h-full object-cover transition duration-700 ease-out group-hover:scale-105">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                    <div class="absolute bottom-6 left-6 text-ivory space-y-1">
+                        <span class="text-[10px] uppercase tracking-[0.2em] text-champagne">Signature Silhouettes</span>
+                        <h3 class="font-serif text-2xl font-normal">Iconic Solitaires</h3>
+                    </div>
+                </div>
+
+                <!-- Wide Top Right -->
+                <div onclick="switchPage('catalog')" class="reveal-on-scroll md:col-span-7 relative group overflow-hidden bg-cream h-[298px] cursor-pointer shadow-sm">
+                    <img src="https://images.unsplash.com/photo-1745542284155-52a2d488547b?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D"
+                         alt="Fine Diamond Craftsmanship"
+                         class="w-full h-full object-cover transition duration-700 ease-out group-hover:scale-105">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent"></div>
+                    <div class="absolute bottom-6 left-6 text-ivory space-y-1">
+                        <span class="text-[10px] uppercase tracking-[0.2em] text-champagne">Modern Elegance</span>
+                        <h3 class="font-serif text-2xl font-normal">Bridal &amp; Statement Pieces</h3>
+                    </div>
+                </div>
+
+                <!-- Bottom Middle Right -->
+                <div onclick="switchPage('catalog')" class="reveal-on-scroll md:col-span-4 relative group overflow-hidden bg-cream h-[298px] cursor-pointer shadow-sm">
+                    <img src="https://images.unsplash.com/photo-1744369024182-28186b4644a2?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D"
+                         alt="Diamond Jewelry Detail"
+                         class="w-full h-full object-cover transition duration-700 ease-out group-hover:scale-105">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent"></div>
+                    <div class="absolute bottom-6 left-6 text-ivory space-y-1">
+                        <span class="text-[10px] uppercase tracking-[0.2em] text-champagne">Everyday Luxury</span>
+                        <h3 class="font-serif text-xl font-normal">Fine Bands</h3>
+                    </div>
+                </div>
+
+                <!-- Bottom Far Right -->
+                <div onclick="switchPage('catalog')" class="reveal-on-scroll md:col-span-3 relative group overflow-hidden bg-cream h-[298px] cursor-pointer shadow-sm">
+                    <img src="https://images.unsplash.com/photo-1721103428054-6bcf4f655594?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D"
+                         alt="Diamond Sparkle"
+                         class="w-full h-full object-cover transition duration-700 ease-out group-hover:scale-105">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                    <div class="absolute bottom-6 left-6 text-ivory space-y-1">
+                        <span class="text-[10px] uppercase tracking-[0.2em] text-champagne">Precision Cut</span>
+                        <h3 class="font-serif text-xl font-normal">Pure Fire</h3>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Row 2: Balanced 3-Column Editorial Strip -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div onclick="switchPage('catalog')" class="reveal-on-scroll relative group overflow-hidden bg-cream h-[320px] cursor-pointer shadow-sm">
+                    <img src="https://images.unsplash.com/photo-1652434329242-645c771240ae?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D"
+                         alt="Timeless Diamond Jewelry"
+                         class="w-full h-full object-cover transition duration-700 ease-out group-hover:scale-105">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                    <div class="absolute bottom-6 left-6 text-ivory space-y-1">
+                        <span class="text-[10px] uppercase tracking-[0.2em] text-champagne">Curated Classics</span>
+                        <h3 class="font-serif text-xl font-normal">Earrings &amp; Studs</h3>
+                    </div>
+                </div>
+
+                <div onclick="switchPage('catalog')" class="reveal-on-scroll relative group overflow-hidden bg-cream h-[320px] cursor-pointer shadow-sm">
+                    <img src="https://images.unsplash.com/photo-1654422958642-6b4ca03a8796?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D"
+                         alt="Fine Gold and Diamond Setting"
+                         class="w-full h-full object-cover transition duration-700 ease-out group-hover:scale-105">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                    <div class="absolute bottom-6 left-6 text-ivory space-y-1">
+                        <span class="text-[10px] uppercase tracking-[0.2em] text-champagne">14K &amp; 18K Solid Gold</span>
+                        <h3 class="font-serif text-xl font-normal">Necklaces &amp; Pendants</h3>
+                    </div>
+                </div>
+
+                <div onclick="switchPage('mission')" class="reveal-on-scroll relative group overflow-hidden bg-cream h-[320px] cursor-pointer shadow-sm">
+                    <img src="https://plus.unsplash.com/premium_photo-1681276169903-83b87f1cbf19?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D"
+                         alt="Certified Lab-Grown Diamonds"
+                         class="w-full h-full object-cover transition duration-700 ease-out group-hover:scale-105">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/65 via-transparent to-transparent"></div>
+                    <div class="absolute bottom-6 left-6 text-ivory space-y-1">
+                        <span class="text-[10px] uppercase tracking-[0.2em] text-champagne">GIA &amp; IGI Certified</span>
+                        <h3 class="font-serif text-xl font-normal">Discover Our Craft</h3>
+                    </div>
+                </div>
+            </div>
+
+            <div class="reveal-on-scroll text-center pt-4">
+                <button onclick="switchPage('catalog')" class="bg-charcoal text-ivory px-10 py-4 text-xs tracking-[0.2em] uppercase hover:bg-champagne transition duration-300">
+                    View Full Live Catalog
+                </button>
             </div>
         </section>
     </div>
@@ -175,72 +306,88 @@
                 </button>
             </div>
 
-            <!-- Section Header -->
-            <div class="text-center space-y-4 max-w-3xl mx-auto">
+            <!-- Page Header -->
+            <div class="reveal-on-scroll text-center space-y-4 max-w-3xl mx-auto">
                 <span class="text-xs uppercase tracking-[0.25em] text-champagne-dark font-semibold">About Us</span>
                 <h1 class="font-serif text-4xl md:text-5xl text-charcoal font-normal">Modern Luxury, Perfected by Science</h1>
                 <p class="text-muted font-light text-base leading-relaxed">
-                    Redefining fine jewelry through <strong class="font-medium text-charcoal">extraordinary craftsmanship</strong>, <strong class="font-medium text-charcoal">certified brilliance</strong>, and <strong class="font-medium text-charcoal">transparent value</strong>.
+                    We craft fine jewelry defined by <strong class="font-semibold text-charcoal">extraordinary precision</strong>, <strong class="font-semibold text-charcoal">certified brilliance</strong>, and <strong class="font-semibold text-charcoal">honest direct-to-you value</strong>.
                 </p>
                 <div class="w-12 h-[1px] bg-champagne mx-auto pt-2"></div>
             </div>
 
             <!-- Brand Story Card -->
-            <div class="bg-white p-8 md:p-12 border border-cream shadow-sm space-y-6 text-muted font-light leading-relaxed">
+            <div class="reveal-on-scroll bg-white p-8 md:p-12 border border-cream shadow-sm space-y-6 text-muted font-light leading-relaxed">
                 <div class="space-y-2">
-                    <span class="text-[11px] uppercase tracking-[0.2em] text-champagne-dark font-semibold">Our Heritage</span>
+                    <span class="text-[11px] uppercase tracking-[0.2em] text-champagne-dark font-semibold">Our Story</span>
                     <h2 class="font-serif text-2xl md:text-3xl text-charcoal font-normal">Founded by Shimon Elbaz in 2023</h2>
                 </div>
                 <p>
-                    Lumière was established in 2023 by founder <strong class="font-semibold text-charcoal">Shimon Elbaz</strong> with a clear, transformative vision: to remove the artificial markup and exclusivity barriers of traditional diamond retail by offering <strong class="font-medium text-charcoal">trending, heirloom-grade fine jewelry</strong> at an honest standard.
+                    Lumière was founded in 2023 by <strong class="font-semibold text-charcoal">Shimon Elbaz</strong> with a simple goal: to remove the traditional retail markups of fine diamond jewelry while raising the bar for <strong class="font-medium text-charcoal">modern design</strong> and <strong class="font-medium text-charcoal">stone perfection</strong>.
                 </p>
                 <p>
-                    We believe celebrating life’s milestones with breathtaking diamonds should never require compromising on <strong class="font-medium text-charcoal">stone quality</strong>, <strong class="font-medium text-charcoal">ethical origin</strong>, or <strong class="font-medium text-charcoal">financial clarity</strong>. By pairing precision goldsmithing with top-tier lab-grown diamonds, Lumière delivers pure radiance built to endure for generations.
+                    Celebrating life’s biggest milestones should never mean compromising on <strong class="font-medium text-charcoal">quality</strong>, <strong class="font-medium text-charcoal">ethics</strong>, or <strong class="font-medium text-charcoal">clarity of pricing</strong>. By pairing master goldsmithing with top-grade lab-grown diamonds, every Lumière piece is built to shine for generations.
                 </p>
             </div>
 
-            <!-- Myth vs. Reality & Science Split Section -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
-                <div class="space-y-5">
+            <!-- Science & 3-Image Editorial Collage -->
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-10 items-center">
+                <div class="reveal-on-scroll md:col-span-6 space-y-5">
                     <span class="text-xs uppercase tracking-[0.2em] text-champagne-dark font-semibold block">100% Real Diamonds • Atom for Atom</span>
-                    <h3 class="font-serif text-3xl text-charcoal font-normal leading-snug">The Science Behind Lab-Grown Diamonds</h3>
+                    <h3 class="font-serif text-3xl text-charcoal font-normal leading-snug">What Makes a Lab-Grown Diamond Real?</h3>
                     <p class="text-muted font-light text-sm leading-relaxed">
-                        A common myth is that lab-grown diamonds are "simulants" like cubic zirconia or moissanite. In reality, <strong class="font-semibold text-charcoal">lab-grown diamonds are 100% real diamonds</strong>—chemically, physically, and optically identical to stones mined from the Earth.
+                        Unlike diamond look-alikes such as cubic zirconia or moissanite, <strong class="font-semibold text-charcoal">lab-grown diamonds are 100% real diamonds</strong>—sharing the exact same chemical, physical, and optical structure as mined diamonds.
                     </p>
                     <p class="text-muted font-light text-sm leading-relaxed">
-                        The only difference is origin. Instead of forming over billions of years underground, our diamonds are grown in controlled environments that replicate the <strong class="font-medium text-charcoal">extreme heat (over 1,500°C)</strong> and <strong class="font-medium text-charcoal">crushing pressure (870,000+ PSI)</strong> of the Earth’s mantle—producing pure crystallized carbon with zero mining disruption.
+                        The only difference is where they begin. Inside advanced growth chambers, pure carbon is exposed to <strong class="font-semibold text-charcoal">temperatures above 1,500°C</strong> and <strong class="font-semibold text-charcoal">pressures over 870,000 PSI</strong>—mirroring the natural conditions deep beneath the Earth’s crust without mining.
                     </p>
-                    <div class="pt-2 border-t border-cream space-y-2 text-xs text-muted font-light">
-                        <p><strong class="font-semibold text-charcoal uppercase tracking-wider">HPHT (High Pressure, High Temperature):</strong> Mimics natural geological diamond growth using intense heat and pressure on a pure diamond seed.</p>
-                        <p><strong class="font-semibold text-charcoal uppercase tracking-wider">CVD (Chemical Vapor Deposition):</strong> Grows ultra-pure Type IIa diamond crystals layer by layer from carbon-rich plasma.</p>
+                    <div class="pt-3 border-t border-cream space-y-3 text-xs text-muted font-light">
+                        <p><strong class="font-semibold text-charcoal uppercase tracking-wider">HPHT (High Pressure, High Temperature):</strong> Recreates natural geological heat and pressure around a pure diamond seed.</p>
+                        <p><strong class="font-semibold text-charcoal uppercase tracking-wider">CVD (Chemical Vapor Deposition):</strong> Builds ultra-pure diamond crystals atom by atom from carbon-rich gas.</p>
                     </div>
                 </div>
-                <div class="h-[420px] shadow-lg bg-cream overflow-hidden">
-                    <img src="https://images.unsplash.com/photo-1624588057318-5f1b2eb81012?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D" alt="Lab Grown Diamond Science" class="w-full h-full object-cover">
+
+                <!-- About Us 3-Image Collage (Combining Existing Image + 2 New Images) -->
+                <div class="reveal-on-scroll md:col-span-6 grid grid-cols-2 gap-4">
+                    <div class="col-span-2 h-[240px] shadow-md bg-cream overflow-hidden group">
+                        <img src="https://images.unsplash.com/photo-1624588057318-5f1b2eb81012?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D"
+                             alt="Lab Grown Diamond Precision"
+                             class="w-full h-full object-cover transition duration-700 ease-out group-hover:scale-105">
+                    </div>
+                    <div class="h-[210px] shadow-md bg-cream overflow-hidden group">
+                        <img src="https://images.unsplash.com/photo-1729720667628-acdf13e1aae3?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D"
+                             alt="Diamond Facets and Brilliance"
+                             class="w-full h-full object-cover transition duration-700 ease-out group-hover:scale-105">
+                    </div>
+                    <div class="h-[210px] shadow-md bg-cream overflow-hidden group">
+                        <img src="https://images.unsplash.com/photo-1589845641474-bc54b83380f5?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D"
+                             alt="Fine Jewelry Craftsmanship"
+                             class="w-full h-full object-cover transition duration-700 ease-out group-hover:scale-105">
+                    </div>
                 </div>
             </div>
 
-            <!-- 4 Fascinating Diamond Facts Grid -->
-            <div class="space-y-6">
+            <!-- 4 Clear Diamond Facts Grid -->
+            <div class="reveal-on-scroll space-y-6">
                 <div class="text-center space-y-2">
-                    <span class="text-xs uppercase tracking-[0.2em] text-champagne-dark font-semibold">By The Numbers</span>
-                    <h3 class="font-serif text-2xl md:text-3xl text-charcoal font-normal">Why Discerning Buyers Choose Lab-Grown</h3>
+                    <span class="text-xs uppercase tracking-[0.2em] text-champagne-dark font-semibold">At a Glance</span>
+                    <h3 class="font-serif text-2xl md:text-3xl text-charcoal font-normal">Four Reasons Clients Choose Lab-Grown</h3>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     <div class="bg-white p-6 border border-cream shadow-sm space-y-3">
                         <span class="font-serif text-3xl text-champagne-dark block">10 / 10</span>
-                        <h4 class="text-xs uppercase tracking-[0.15em] font-semibold text-charcoal">Mohs Hardness</h4>
+                        <h4 class="text-xs uppercase tracking-[0.15em] font-semibold text-charcoal">Forever Hardness</h4>
                         <p class="text-xs text-muted font-light leading-relaxed">
-                            Built on an identical <strong class="font-medium text-charcoal">isometric carbon lattice</strong>—the hardest natural substance on Earth, never clouding or scratching over time.
+                            Ranks <strong class="font-semibold text-charcoal">10 out of 10 on the Mohs scale</strong>—the hardest natural material on Earth, resisting scratches and clouding forever.
                         </p>
                     </div>
 
                     <div class="bg-white p-6 border border-cream shadow-sm space-y-3">
                         <span class="font-serif text-3xl text-champagne-dark block">2.417</span>
-                        <h4 class="text-xs uppercase tracking-[0.15em] font-semibold text-charcoal">Refractive Index</h4>
+                        <h4 class="text-xs uppercase tracking-[0.15em] font-semibold text-charcoal">Identical Sparkle</h4>
                         <p class="text-xs text-muted font-light leading-relaxed">
-                            Delivers the exact same <strong class="font-medium text-charcoal">fire, dispersion, and sparkle</strong> as mined diamonds—even standard diamond testers read them identically.
+                            Features the exact <strong class="font-semibold text-charcoal">2.417 refractive index</strong> of mined diamonds, delivering unmistakable fire and light return.
                         </p>
                     </div>
 
@@ -248,15 +395,15 @@
                         <span class="font-serif text-3xl text-champagne-dark block">Top 2%</span>
                         <h4 class="text-xs uppercase tracking-[0.15em] font-semibold text-charcoal">Type IIa Purity</h4>
                         <p class="text-xs text-muted font-light leading-relaxed">
-                            Most Lumière diamonds belong to the <strong class="font-medium text-charcoal">rarest chemical purity class</strong>—a grade achieved by fewer than 2% of mined diamonds.
+                            Belongs to the <strong class="font-semibold text-charcoal">rarest purity category</strong> in gemology—a standard achieved by fewer than 2% of mined stones.
                         </p>
                     </div>
 
                     <div class="bg-white p-6 border border-cream shadow-sm space-y-3">
                         <span class="font-serif text-3xl text-champagne-dark block">GIA &amp; IGI</span>
-                        <h4 class="text-xs uppercase tracking-[0.15em] font-semibold text-charcoal">Certified Authentic</h4>
+                        <h4 class="text-xs uppercase tracking-[0.15em] font-semibold text-charcoal">Certified Grading</h4>
                         <p class="text-xs text-muted font-light leading-relaxed">
-                            Graded on the exact same <strong class="font-medium text-charcoal">4Cs scale (Cut, Color, Clarity, Carat)</strong> by the world’s leading independent gemological institutes.
+                            Independently graded on the <strong class="font-semibold text-charcoal">4Cs (Cut, Color, Clarity, Carat)</strong> by the world’s top gemological laboratories.
                         </p>
                     </div>
                 </div>
@@ -351,14 +498,47 @@
     <!-- Core Logic Scripts -->
     <script src="config.js"></script>
     <script>
+        // Smooth scroll-reveal observer for homepage collage, about us, and catalog cards
+        const revealObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach((entry, index) => {
+                if (entry.isIntersecting) {
+                    const delay = (index % 3) * 100;
+                    setTimeout(() => {
+                        entry.target.classList.add('is-visible');
+                    }, delay);
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, {
+            threshold: 0.1,
+            rootMargin: '0px 0px -30px 0px'
+        });
+
+        function bindRevealElements() {
+            document.querySelectorAll('.reveal-on-scroll:not(.reveal-bound), #product-grid > div:not(.reveal-bound)').forEach((el) => {
+                el.classList.add('reveal-bound');
+                revealObserver.observe(el);
+            });
+        }
+
         function switchPage(pageId) {
             document.querySelectorAll('.page-view').forEach(el => el.classList.add('hidden'));
             const target = document.getElementById('page-' + pageId);
             if (target) {
                 target.classList.remove('hidden');
                 window.scrollTo(0, 0);
+                setTimeout(bindRevealElements, 50);
             }
         }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            bindRevealElements();
+            const grid = document.getElementById('product-grid');
+            if (grid) {
+                const gridWatcher = new MutationObserver(bindRevealElements);
+                gridWatcher.observe(grid, { childList: true });
+            }
+        });
     </script>
     <script src="app.js"></script>
 </body>
