@@ -4,7 +4,6 @@ let filteredProducts = [];
 let favorites = JSON.parse(localStorage.getItem('lumiere_favorites')) || [];
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Configure WhatsApp Global Links
     const config = window.LUMIERE_CONFIG || {};
     const waNumber = config.whatsappNumber || "972537926529";
     const defaultMsg = encodeURIComponent("Hello, I am interested in exploring the Lumière fine lab-grown diamond collection.");
@@ -15,7 +14,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     fetchInventory();
 
-    // Event Listeners for Filters & Search
     document.getElementById('search-input').addEventListener('input', applyFiltersAndSorting);
     document.getElementById('category-filter').addEventListener('change', applyFiltersAndSorting);
     document.getElementById('metal-filter').addEventListener('change', applyFiltersAndSorting);
@@ -35,7 +33,6 @@ async function fetchInventory() {
         if (data.status === 'success' && Array.isArray(data.products)) {
             allProducts = data.products;
             
-            // GROUP BY UNIQUE MODEL NUMBER AND COUNT STOCK (NUMBER OF ROWS/IDS)
             const modelMap = {};
             allProducts.forEach(p => {
                 const modelKey = String(p.modelNumber || "").trim().toUpperCase();
@@ -105,11 +102,11 @@ function applyFiltersAndSorting() {
 
     filteredProducts = uniqueProducts.filter(p => {
         const matchSearch = !searchTerm || 
-            p.modelNumber.toLowerCase().includes(searchTerm) ||
-            p.category.toLowerCase().includes(searchTerm) ||
-            p.metal.toLowerCase().includes(searchTerm) ||
-            p.goldColor.toLowerCase().includes(searchTerm) ||
-            p.details.toLowerCase().includes(searchTerm);
+            (p.details && p.details.toLowerCase().includes(searchTerm)) ||
+            (p.modelNumber && p.modelNumber.toLowerCase().includes(searchTerm)) ||
+            (p.category && p.category.toLowerCase().includes(searchTerm)) ||
+            (p.metal && p.metal.toLowerCase().includes(searchTerm)) ||
+            (p.goldColor && p.goldColor.toLowerCase().includes(searchTerm));
 
         const matchCategory = selectedCategory === 'all' || p.category === selectedCategory;
         const matchMetal = selectedMetal === 'all' || p.metal === selectedMetal;
@@ -117,7 +114,6 @@ function applyFiltersAndSorting() {
         return matchSearch && matchCategory && matchMetal;
     });
 
-    // Sorting
     if (sortBy === 'price-asc') {
         filteredProducts.sort((a, b) => a.price - b.price);
     } else if (sortBy === 'price-desc') {
@@ -159,11 +155,12 @@ function renderCatalog(products) {
     grid.innerHTML = products.map(p => {
         const isFav = favorites.some(fav => fav.modelNumber === p.modelNumber);
         const imgSrc = p.image && p.image.startsWith('http') ? p.image : fallbackImg;
+        const displayName = p.details || `Model ${p.modelNumber} Fine Jewelry`;
         
         return `
             <div class="bg-white border border-cream group flex flex-col justify-between transition hover:shadow-lg">
                 <div class="relative bg-cream h-[320px] overflow-hidden cursor-pointer" onclick="openProductModal('${p.modelNumber}')">
-                    <img src="${imgSrc}" alt="Model ${p.modelNumber}" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" onerror="this.src='${fallbackImg}'">
+                    <img src="${imgSrc}" alt="${displayName}" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" onerror="this.src='${fallbackImg}'">
                     <span class="absolute top-4 left-4 bg-white/90 px-3 py-1 text-[10px] tracking-widest uppercase text-charcoal font-medium">In Stock: ${p.stockCount}</span>
                     <button onclick="event.stopPropagation(); toggleFavorite('${p.modelNumber}')" class="absolute top-4 right-4 w-10 h-10 bg-white/90 backdrop-blur-sm flex items-center justify-center text-charcoal hover:text-champagne transition">
                         <i class="${isFav ? 'fas text-champagne' : 'far'} fa-heart text-lg"></i>
@@ -173,10 +170,10 @@ function renderCatalog(products) {
                     <div>
                         <div class="flex items-center justify-between text-xs text-muted tracking-wider uppercase mb-1">
                             <span>${p.category}</span>
-                            <span>${p.metal} ${p.goldColor ? '(' + p.goldColor + ')' : ''}</span>
+                            <span>Model: ${p.modelNumber}</span>
                         </div>
-                        <h3 class="font-serif text-lg font-medium cursor-pointer hover:text-champagne transition" onclick="openProductModal('${p.modelNumber}')">
-                            Model ${p.modelNumber}
+                        <h3 class="font-serif text-lg font-medium cursor-pointer hover:text-champagne transition line-clamp-2" onclick="openProductModal('${p.modelNumber}')">
+                            ${displayName}
                         </h3>
                     </div>
                     <div class="flex items-center justify-between pt-4 border-t border-cream">
@@ -198,10 +195,12 @@ function openProductModal(modelNumber) {
     const fallbackImg = window.LUMIERE_CONFIG.fallbackImage;
     const imgSrc = p.image && p.image.startsWith('http') ? p.image : fallbackImg;
     const isFav = favorites.some(fav => fav.modelNumber === p.modelNumber);
+    const displayName = p.details || `Model ${p.modelNumber} Fine Jewelry`;
 
     document.getElementById('modal-image').src = imgSrc;
     
     let specsHtml = '';
+    specsHtml += `<div class="flex justify-between py-1 border-b border-cream"><span class="text-muted">Model Number</span><span class="font-medium">${p.modelNumber}</span></div>`;
     if (p.metal) specsHtml += `<div class="flex justify-between py-1 border-b border-cream"><span class="text-muted">Metal</span><span class="font-medium">${p.metal}</span></div>`;
     if (p.goldColor) specsHtml += `<div class="flex justify-between py-1 border-b border-cream"><span class="text-muted">Gold Color</span><span class="font-medium">${p.goldColor}</span></div>`;
     if (p.caratWeight) specsHtml += `<div class="flex justify-between py-1 border-b border-cream"><span class="text-muted">Carat Weight</span><span class="font-medium">${p.caratWeight} CT</span></div>`;
@@ -218,10 +217,8 @@ function openProductModal(modelNumber) {
                 <span class="text-xs uppercase tracking-widest text-champagne-dark">${p.category}</span>
                 <span class="text-xs text-muted">Model: ${p.modelNumber}</span>
             </div>
-            <h2 class="font-serif text-2xl font-normal">Model ${p.modelNumber}</h2>
+            <h2 class="font-serif text-2xl font-normal">${displayName}</h2>
             <div class="font-serif text-2xl font-semibold text-charcoal">$${Number(p.price).toLocaleString()}</div>
-            
-            <p class="text-sm text-muted font-light leading-relaxed">${p.details || "Exquisite fine lab-grown diamond jewelry piece custom crafted by Lumière."}</p>
             
             <div class="space-y-2 pt-2 text-xs">
                 ${specsHtml}
@@ -284,18 +281,21 @@ function openFavoritesModal() {
             </div>
         `;
     } else {
-        container.innerHTML = favorites.map(f => `
-            <div class="flex items-center space-x-4 p-3 bg-ivory border border-cream">
-                <img src="${f.image || fallbackImg}" class="w-16 h-16 object-cover bg-cream" onerror="this.src='${fallbackImg}'">
-                <div class="flex-1">
-                    <h4 class="font-serif text-sm font-medium">Model ${f.modelNumber}</h4>
-                    <p class="text-xs text-muted">${f.category} | $${Number(f.price).toLocaleString()} (Stock: ${f.stockCount})</p>
+        container.innerHTML = favorites.map(f => {
+            const displayName = f.details || `Model ${f.modelNumber}`;
+            return `
+                <div class="flex items-center space-x-4 p-3 bg-ivory border border-cream">
+                    <img src="${f.image || fallbackImg}" class="w-16 h-16 object-cover bg-cream" onerror="this.src='${fallbackImg}'">
+                    <div class="flex-1">
+                        <h4 class="font-serif text-sm font-medium line-clamp-1">${displayName}</h4>
+                        <p class="text-xs text-muted">Model: ${f.modelNumber} | $${Number(f.price).toLocaleString()} (Stock: ${f.stockCount})</p>
+                    </div>
+                    <button onclick="toggleFavorite('${f.modelNumber}'); openFavoritesModal();" class="text-muted hover:text-red-500 p-2">
+                        <i class="fas fa-trash-alt text-xs"></i>
+                    </button>
                 </div>
-                <button onclick="toggleFavorite('${f.modelNumber}'); openFavoritesModal();" class="text-muted hover:text-red-500 p-2">
-                    <i class="fas fa-trash-alt text-xs"></i>
-                </button>
-            </div>
-        `).join('');
+            `;
+        }).join('');
     }
 
     document.getElementById('favorites-drawer').classList.remove('hidden');
@@ -307,7 +307,7 @@ function closeFavoritesModal() {
 
 function inquireProductWhatsApp(model, price) {
     const config = window.LUMIERE_CONFIG;
-    const message = encodeURIComponent(`Hello, I am interested in the following Lumière piece:\nProduct: Model ${model}\nPrice: $${Number(price).toLocaleString()}\nCould you please share more details and availability?`);
+    const message = encodeURIComponent(`Hello, I am interested in the following Lumière piece:\nModel: ${model}\nPrice: $${Number(price).toLocaleString()}\nCould you please share more details and availability?`);
     window.open(`https://wa.me/${config.whatsappNumber}?text=${message}`, '_blank');
 }
 
@@ -315,7 +315,7 @@ function inquireWishlistWhatsApp() {
     if (favorites.length === 0) return;
     const config = window.LUMIERE_CONFIG;
     
-    let itemsText = favorites.map(f => `- Model ${f.modelNumber} (${f.category}): $${Number(f.price).toLocaleString()} (In Stock: ${f.stockCount})`).join('\n');
+    let itemsText = favorites.map(f => `- ${f.details || 'Model ' + f.modelNumber} (Model: ${f.modelNumber}): $${Number(f.price).toLocaleString()} (In Stock: ${f.stockCount})`).join('\n');
     const message = encodeURIComponent(`Hello, I am interested in the following Lumière wishlist pieces:\n\n${itemsText}\n\nCould you please share more details and availability?`);
     window.open(`https://wa.me/${config.whatsappNumber}?text=${message}`, '_blank');
 }
