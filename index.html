@@ -301,7 +301,26 @@
             </div>
         </main>
     </div>
+<!-- VIEW 2B: INDIVIDUAL PIECES BY MODEL NUMBER -->
+    <div id="page-model-variants" class="page-view hidden">
+        <main class="max-w-7xl mx-auto px-6 py-16 space-y-10">
+            <div class="flex items-center justify-between">
+                <button onclick="switchPage('catalog')" class="text-xs uppercase tracking-widest text-muted hover:text-charcoal flex items-center gap-2 transition">
+                    <i class="fas fa-arrow-left"></i> Back to Catalog
+                </button>
+            </div>
 
+            <div class="text-center max-w-2xl mx-auto space-y-3">
+                <span id="variants-model-badge" class="text-xs uppercase tracking-[0.25em] text-champagne-dark font-semibold">Model Number</span>
+                <h2 id="variants-model-title" class="font-serif text-3xl md:text-4xl text-charcoal font-normal">Available Pieces in Stock</h2>
+                <p class="text-xs text-muted">Each piece below is an individual certified item with its own unique stone weight, specs, and ID.</p>
+                <div class="w-12 h-[1px] bg-champagne mx-auto mt-4"></div>
+            </div>
+
+            <!-- Grid of Individual Item IDs for this Model -->
+            <div id="variants-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+        </main>
+    </div>
   <!-- VIEW 3: ABOUT US & LAB-GROWN SCIENCE PAGE (Keyzar-Inspired Editorial Layout) -->
     <div id="page-mission" class="page-view hidden">
         
