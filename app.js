@@ -22,6 +22,23 @@ document.addEventListener('DOMContentLoaded', () => {
     updateFavoritesBadge();
 });
 
+// Automatically converts any Google Drive link into a reliable direct image URL
+function normalizeImageUrl(rawUrl) {
+    const fallbackImg = window.LUMIERE_CONFIG.fallbackImage;
+    if (!rawUrl) return fallbackImg;
+    
+    const url = String(rawUrl).trim();
+    if (!url.startsWith('http')) return fallbackImg;
+
+    // Extract Google Drive File ID from /file/d/ID, ?id=ID, or /d/ID
+    const driveMatch = url.match(/(?:\/d\/|id=)([a-zA-Z0-9_-]{25,})/);
+    if (driveMatch && url.includes('drive.google.com')) {
+        return `https://drive.google.com/thumbnail?id=${driveMatch[1]}&sz=w1000`;
+    }
+
+    return url;
+}
+
 async function fetchInventory() {
     const config = window.LUMIERE_CONFIG;
     const loadingState = document.getElementById('loading-state');
@@ -31,9 +48,15 @@ async function fetchInventory() {
         const data = await response.json();
         
         if (data.status === 'success' && Array.isArray(data.products)) {
-            allProducts = data.products;
+            // Normalize every item's image URL upfront
+            allProducts = data.products.map(p => ({
+                ...p,
+                image: normalizeImageUrl(p.image)
+            }));
             
+            const fallbackImg = config.fallbackImage;
             const modelMap = {};
+
             allProducts.forEach(p => {
                 const modelKey = String(p.modelNumber || "").trim().toUpperCase();
                 if (!modelKey) return;
@@ -47,9 +70,35 @@ async function fetchInventory() {
                 } else {
                     modelMap[modelKey].stockCount += 1;
                     modelMap[modelKey].allIds.push(p.id);
+                    // If the first item of this model had no real photo, inherit a valid one from a sibling item
+                    if (modelMap[modelKey].image === fallbackImg && p.image !== fallbackImg) {
+                        modelMap[modelKey].image = p.image;
+                    }
                 }
             });
 
+            uniqueProducts = Object.values(modelMap);
+            filteredProducts = [...uniqueProducts];
+            
+            populateFilterDropdowns();
+            renderCatalog(filteredProducts);
+            if (loadingState) loadingState.classList.add('hidden');
+        } else {
+            throw new Error(data.message || "Invalid API response structure.");
+        }
+    } catch (error) {
+        console.error("Failed to load live catalog:", error);
+        if (loadingState) {
+            loadingState.innerHTML = `
+                <div class="text-center space-y-3">
+                    <i class="fas fa-exclamation-circle text-2xl text-amber-600"></i>
+                    <p class="text-sm text-muted">Unable to connect to live inventory sheet at this moment.</p>
+                    <button onclick="fetchInventory()" class="bg-charcoal text-ivory px-4 py-2 text-xs uppercase tracking-wider">Retry Connection</button>
+                </div>
+            `;
+        }
+    }
+}
             uniqueProducts = Object.values(modelMap);
             filteredProducts = [...uniqueProducts];
             
