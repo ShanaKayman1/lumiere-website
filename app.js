@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const defaultMsg = encodeURIComponent("Hello, I am interested in exploring the Lumière fine lab-grown diamond collection.");
     
     document.querySelectorAll('#nav-whatsapp-btn, #hero-whatsapp-btn, #footer-whatsapp-btn, #contact-whatsapp-btn').forEach(btn => {
-        if(btn) btn.href = `https://wa.me/${waNumber}?text=${defaultMsg}`;
+        if (btn) btn.href = `https://wa.me/${waNumber}?text=${defaultMsg}`;
     });
 
     fetchInventory();
@@ -208,7 +208,18 @@ function openProductModal(modelNumber) {
     if (p.clarity) specsHtml += `<div class="flex justify-between py-1 border-b border-cream"><span class="text-muted">Clarity</span><span class="font-medium">${p.clarity}</span></div>`;
     if (p.stoneAmount) specsHtml += `<div class="flex justify-between py-1 border-b border-cream"><span class="text-muted">Stone Amount</span><span class="font-medium">${p.stoneAmount}</span></div>`;
     if (p.itemWeight) specsHtml += `<div class="flex justify-between py-1 border-b border-cream"><span class="text-muted">Item Weight</span><span class="font-medium">${p.itemWeight} GR</span></div>`;
-    specsHtml += `<div class="flex justify-between py-1 border-b border-cream"><span class="text-muted">Availability</span><span class="font-medium text-champagne-dark">In Stock (${p.stockCount} available)</span></div>`;
+    
+    // Clickable Availability link -> opens all individual IDs for this Model Number
+    specsHtml += `
+        <div class="flex justify-between items-center py-1 border-b border-cream">
+            <span class="text-muted">Availability</span>
+            <button onclick="openModelVariantsPage('${p.modelNumber}')" 
+                    class="font-medium text-champagne-dark underline hover:text-charcoal transition cursor-pointer flex items-center gap-1"
+                    title="Click to view each individual piece ID and its exact specifications">
+                In Stock (${p.stockCount} available) <i class="fas fa-arrow-right text-[10px]"></i>
+            </button>
+        </div>
+    `;
 
     const detailsContainer = document.getElementById('modal-details-container');
     detailsContainer.innerHTML = `
@@ -240,6 +251,95 @@ function openProductModal(modelNumber) {
 
 function closeProductModal() {
     document.getElementById('product-modal').classList.add('hidden');
+}
+
+function openModelVariantsPage(modelNumber) {
+    closeProductModal();
+
+    const targetModel = String(modelNumber || "").trim().toUpperCase();
+    const matchingPieces = allProducts.filter(item =>
+        String(item.modelNumber || "").trim().toUpperCase() === targetModel
+    );
+
+    const first = matchingPieces[0] || {};
+    const badgeEl = document.getElementById('variants-model-badge');
+    const titleEl = document.getElementById('variants-model-title');
+    const grid = document.getElementById('variants-grid');
+
+    if (badgeEl) badgeEl.textContent = `Model: ${modelNumber} • ${matchingPieces.length} Piece${matchingPieces.length === 1 ? '' : 's'} Available`;
+    if (titleEl) titleEl.textContent = first.details || `Available Pieces for ${modelNumber}`;
+
+    if (!grid) return;
+
+    if (matchingPieces.length === 0) {
+        grid.innerHTML = `<div class="col-span-full text-center py-12 text-muted text-sm">No individual pieces found in stock for this model.</div>`;
+    } else {
+        const fallbackImg = window.LUMIERE_CONFIG.fallbackImage;
+        const waNumber = window.LUMIERE_CONFIG.whatsappNumber || "972537926529";
+
+        grid.innerHTML = matchingPieces.map(piece => {
+            const imgSrc = piece.image && piece.image.startsWith('http') ? piece.image : fallbackImg;
+            const formattedPrice = piece.price ? `$${Number(piece.price).toLocaleString()}` : 'Inquire';
+
+            let rowsHtml = '';
+            rowsHtml += `<div class="flex justify-between py-1 border-b border-cream"><span class="text-muted">Item ID</span><span class="font-semibold text-charcoal">#${piece.id}</span></div>`;
+            rowsHtml += `<div class="flex justify-between py-1 border-b border-cream"><span class="text-muted">Model Number</span><span class="font-medium text-charcoal">${piece.modelNumber}</span></div>`;
+            if (piece.metal) rowsHtml += `<div class="flex justify-between py-1 border-b border-cream"><span class="text-muted">Metal</span><span class="font-medium text-charcoal">${piece.metal}</span></div>`;
+            if (piece.goldColor) rowsHtml += `<div class="flex justify-between py-1 border-b border-cream"><span class="text-muted">Gold Color</span><span class="font-medium text-charcoal">${piece.goldColor}</span></div>`;
+            if (piece.caratWeight) rowsHtml += `<div class="flex justify-between py-1 border-b border-cream"><span class="text-muted">Carat Weight</span><span class="font-medium text-charcoal">${piece.caratWeight} CT</span></div>`;
+            if (piece.stoneColor) rowsHtml += `<div class="flex justify-between py-1 border-b border-cream"><span class="text-muted">Diamond Color</span><span class="font-medium text-charcoal">${piece.stoneColor}</span></div>`;
+            if (piece.clarity) rowsHtml += `<div class="flex justify-between py-1 border-b border-cream"><span class="text-muted">Clarity</span><span class="font-medium text-charcoal">${piece.clarity}</span></div>`;
+            if (piece.stoneAmount) rowsHtml += `<div class="flex justify-between py-1 border-b border-cream"><span class="text-muted">Stone Amount</span><span class="font-medium text-charcoal">${piece.stoneAmount}</span></div>`;
+            if (piece.itemWeight) rowsHtml += `<div class="flex justify-between py-1 border-b border-cream"><span class="text-muted">Item Weight</span><span class="font-medium text-charcoal">${piece.itemWeight} GR</span></div>`;
+            if (piece.certificate) rowsHtml += `<div class="flex justify-between py-1 border-b border-cream"><span class="text-muted">Certificate</span><span class="font-medium text-charcoal">${piece.certificate}</span></div>`;
+
+            const waMsg = encodeURIComponent(
+                `Hello Lumière, I am interested in this specific in-stock piece:\n• Item ID: #${piece.id}\n• Model: ${piece.modelNumber}\n• Description: ${piece.details || ''}\n• Carat: ${piece.caratWeight || '-'} CT | Color: ${piece.stoneColor || '-'} | Clarity: ${piece.clarity || '-'}\n• Price: ${formattedPrice}`
+            );
+
+            return `
+                <div class="bg-white border border-cream shadow-sm flex flex-col justify-between overflow-hidden transition hover:shadow-lg">
+                    <div>
+                        <div class="relative h-64 bg-cream overflow-hidden">
+                            <img src="${imgSrc}" alt="Item #${piece.id}" loading="lazy" class="w-full h-full object-cover" onerror="this.src='${fallbackImg}'">
+                            <span class="absolute top-3 left-3 bg-charcoal text-ivory px-3 py-1 text-[11px] font-semibold tracking-widest uppercase">
+                                ID #${piece.id}
+                            </span>
+                            <span class="absolute top-3 right-3 bg-white/95 text-emerald-700 px-2.5 py-1 text-[10px] font-semibold tracking-widest uppercase border border-cream">
+                                In Stock
+                            </span>
+                        </div>
+
+                        <div class="p-6 space-y-4">
+                            <div class="border-b border-cream pb-3">
+                                <span class="text-[10px] uppercase tracking-widest text-champagne-dark block">Individual Certified Piece</span>
+                                <div class="flex items-baseline justify-between mt-1">
+                                    <h3 class="font-serif text-2xl font-semibold text-charcoal">${formattedPrice}</h3>
+                                    <span class="text-xs text-muted">ID #${piece.id}</span>
+                                </div>
+                                ${piece.details ? `<p class="text-xs text-muted mt-1 line-clamp-2">${piece.details}</p>` : ''}
+                            </div>
+
+                            <div class="space-y-1.5 text-xs">
+                                ${rowsHtml}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-6 pt-0">
+                        <a href="https://wa.me/${waNumber}?text=${waMsg}" target="_blank"
+                           class="w-full bg-charcoal text-ivory py-3.5 text-xs tracking-[0.2em] uppercase hover:bg-champagne transition flex items-center justify-center gap-2">
+                            <i class="fab fa-whatsapp text-base"></i> Inquire About ID #${piece.id}
+                        </a>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    if (typeof switchPage === 'function') {
+        switchPage('model-variants');
+    }
 }
 
 function toggleFavorite(modelNumber) {
