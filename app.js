@@ -99,28 +99,6 @@ async function fetchInventory() {
         }
     }
 }
-            uniqueProducts = Object.values(modelMap);
-            filteredProducts = [...uniqueProducts];
-            
-            populateFilterDropdowns();
-            renderCatalog(filteredProducts);
-            if (loadingState) loadingState.classList.add('hidden');
-        } else {
-            throw new Error(data.message || "Invalid API response structure.");
-        }
-    } catch (error) {
-        console.error("Failed to load live catalog:", error);
-        if (loadingState) {
-            loadingState.innerHTML = `
-                <div class="text-center space-y-3">
-                    <i class="fas fa-exclamation-circle text-2xl text-amber-600"></i>
-                    <p class="text-sm text-muted">Unable to connect to live inventory sheet at this moment.</p>
-                    <button onclick="fetchInventory()" class="bg-charcoal text-ivory px-4 py-2 text-xs uppercase tracking-wider">Retry Connection</button>
-                </div>
-            `;
-        }
-    }
-}
 
 function populateFilterDropdowns() {
     const categories = [...new Set(uniqueProducts.map(p => p.category))].filter(Boolean).sort();
