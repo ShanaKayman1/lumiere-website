@@ -93,34 +93,51 @@
 
     <!-- VIEWS CONTAINER -->
     
-    <!-- VIEW 1: HOME PAGE -->
+<!-- VIEW 1: HOME PAGE -->
     <div id="page-home" class="page-view">
-        <!-- Hero Section -->
-        <section class="relative bg-cream py-20 md:py-28 px-6 overflow-hidden">
-            <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-                <div class="space-y-6">
-                    <span class="text-xs uppercase tracking-[0.25em] text-champagne-dark font-semibold">Fine Lab-Grown Diamond Jewelry</span>
-                    <h1 class="font-serif text-4xl md:text-6xl leading-tight font-normal text-charcoal">
+        <!-- Full-Width Video Hero Section -->
+        <section class="relative w-full min-h-[85vh] flex items-center overflow-hidden bg-charcoal">
+            
+            <!-- Background Video -->
+            <video 
+                autoplay 
+                loop 
+                muted 
+                playsinline 
+                poster="https://images.unsplash.com/photo-1762505464512-576261d11034?w=1600&auto=format&fit=crop&q=80"
+                class="absolute inset-0 w-full h-full object-cover object-center z-0">
+                <!-- Replace the src below with your actual diamond jewelry video file (.mp4) -->
+                <source src="YOUR_DIAMOND_VIDEO.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+
+            <!-- Subtle Dark Gradient Overlay for Text Readability -->
+            <div class="absolute inset-0 bg-gradient-to-r from-black/75 via-black/45 to-black/20 z-10"></div>
+
+            <!-- Text Content Overlay -->
+            <div class="relative z-20 max-w-7xl mx-auto w-full px-6 py-24 md:py-32">
+                <div class="max-w-2xl space-y-6">
+                    <span class="block text-xs uppercase tracking-[0.25em] text-champagne font-semibold">
+                        Fine Lab-Grown Diamond Jewelry
+                    </span>
+                    <h1 class="font-serif text-4xl sm:text-5xl md:text-6xl lg:text-7xl leading-tight font-normal text-ivory">
                         Timeless Elegance, <br><span class="italic font-light">Brilliantly</span> Crafted.
                     </h1>
-                    <p class="text-muted text-base md:text-lg font-light leading-relaxed max-w-lg">
+                    <p class="text-ivory/85 text-base md:text-lg font-light leading-relaxed max-w-lg">
                         Lumière crafts sustainable, modern, and certified lab-grown diamond jewelry with uncompromising brilliance.
                     </p>
                     <div class="pt-4 flex flex-wrap items-center gap-4">
-                        <button onclick="switchPage('catalog')" class="bg-charcoal text-ivory px-8 py-4 text-xs tracking-[0.2em] uppercase hover:bg-champagne transition duration-300">
+                        <button onclick="switchPage('catalog')" class="bg-ivory text-charcoal px-8 py-4 text-xs tracking-[0.2em] uppercase font-medium hover:bg-champagne hover:text-ivory transition duration-300">
                             Explore Collection
                         </button>
-                        <button onclick="switchPage('mission')" class="border border-charcoal/30 px-8 py-4 text-xs tracking-[0.2em] uppercase hover:border-champagne hover:text-champagne transition duration-300">
+                        <button onclick="switchPage('mission')" class="border border-ivory/50 text-ivory px-8 py-4 text-xs tracking-[0.2em] uppercase hover:border-champagne hover:bg-champagne/10 hover:text-champagne transition duration-300">
                             About Lumière
                         </button>
                     </div>
                 </div>
-                <div class="relative h-[400px] md:h-[500px] shadow-2xl">
-                    <img src="https://images.unsplash.com/photo-1762505464512-576261d11034?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D" alt="Cinematic Luxury Diamond Jewelry" class="w-full h-full object-cover">
-                </div>
             </div>
-        </section>
 
+        </section>
         <!-- 7-Image Editorial Collage with Scroll-Slide Effect -->
         <section class="max-w-7xl mx-auto px-6 py-24 space-y-14">
             <div class="reveal-on-scroll text-center max-w-2xl mx-auto space-y-3">
@@ -378,7 +395,7 @@
                         Lumière was created with a clear mission: to bring <strong class="font-semibold text-charcoal">trending, heirloom-quality diamond jewelry</strong> directly to you—without the inflated markups of traditional luxury retail.
                     </p>
                     <p class="text-muted font-light text-base leading-relaxed">
-                        Every setting is crafted in <strong class="font-semibold text-charcoal">solid 14K and 18K gold</strong> and set with hand-selected lab-grown diamonds chosen for superior cut, fire, and clarity. Whether you are marking an engagement, an anniversary, or an everyday milestone, every piece is made to shine for generations.
+                        Every setting is crafted in <strong class="font-semibold text-charcoal">solid 14K gold</strong> and set with hand-selected lab-grown diamonds chosen for superior cut, fire, and clarity. Whether you are marking an engagement, an anniversary, or an everyday milestone, every piece is made to shine for generations.
                     </p>
                 </div>
             </div>
