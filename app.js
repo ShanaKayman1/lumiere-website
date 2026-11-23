@@ -187,8 +187,8 @@ function renderCatalog(products) {
         return `
             <div class="bg-white border border-cream group flex flex-col justify-between transition hover:shadow-lg">
                 <div class="relative bg-cream h-[320px] overflow-hidden cursor-pointer" onclick="openProductModal('${p.modelNumber}')">
-                    <img src="${imgSrc}" alt="${displayName}" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" onerror="this.src='${fallbackImg}'">
-                    <span class="absolute top-4 left-4 bg-white/90 px-3 py-1 text-[10px] tracking-widest uppercase text-charcoal font-medium">In Stock: ${p.stockCount}</span>
+<img src="${imgSrc}" alt="${displayName}" loading="lazy" class="w-full h-full object-contain p-3 group-hover:scale-105 transition duration-500" onerror="this.src='${fallbackImg}'">
+<span class="absolute top-4 left-4 bg-white/90 px-3 py-1 text-[10px] tracking-widest uppercase text-charcoal font-medium">In Stock: ${p.stockCount}</span>
                     <button onclick="event.stopPropagation(); toggleFavorite('${p.modelNumber}')" class="absolute top-4 right-4 w-10 h-10 bg-white/90 backdrop-blur-sm flex items-center justify-center text-charcoal hover:text-champagne transition">
                         <i class="${isFav ? 'fas text-champagne' : 'far'} fa-heart text-lg"></i>
                     </button>
@@ -328,8 +328,8 @@ function openModelVariantsPage(modelNumber) {
                 <div class="bg-white border border-cream shadow-sm flex flex-col justify-between overflow-hidden transition hover:shadow-lg">
                     <div>
                         <div class="relative h-64 bg-cream overflow-hidden">
-                            <img src="${imgSrc}" alt="Item #${piece.id}" loading="lazy" class="w-full h-full object-cover" onerror="this.src='${fallbackImg}'">
-                            <span class="absolute top-3 left-3 bg-charcoal text-ivory px-3 py-1 text-[11px] font-semibold tracking-widest uppercase">
+<img src="${imgSrc}" alt="Item #${piece.id}" loading="lazy" class="w-full h-full object-contain p-3" onerror="this.src='${fallbackImg}'">
+<span class="absolute top-3 left-3 bg-charcoal text-ivory px-3 py-1 text-[11px] font-semibold tracking-widest uppercase">
                                 ID #${piece.id}
                             </span>
                             <span class="absolute top-3 right-3 bg-white/95 text-emerald-700 px-2.5 py-1 text-[10px] font-semibold tracking-widest uppercase border border-cream">
@@ -412,8 +412,8 @@ function openFavoritesModal() {
             const displayName = f.details || `Model ${f.modelNumber}`;
             return `
                 <div class="flex items-center space-x-4 p-3 bg-ivory border border-cream">
-                    <img src="${f.image || fallbackImg}" class="w-16 h-16 object-cover bg-cream" onerror="this.src='${fallbackImg}'">
-                    <div class="flex-1">
+<img src="${f.image || fallbackImg}" class="w-16 h-16 object-contain p-1 bg-cream" onerror="this.src='${fallbackImg}'">
+<div class="flex-1">
                         <h4 class="font-serif text-sm font-medium line-clamp-1">${displayName}</h4>
                         <p class="text-xs text-muted">Model: ${f.modelNumber} | $${Number(f.price).toLocaleString()} (Stock: ${f.stockCount})</p>
                     </div>
