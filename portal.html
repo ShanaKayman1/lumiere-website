@@ -1,0 +1,1267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LUMIÈRE | Merchant & Admin Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        ivory: '#FBF9F5',
+                        cream: '#F2EDE4',
+                        champagne: '#D4AF37',
+                        'champagne-dark': '#B38F27',
+                        charcoal: '#222222',
+                        muted: '#666666'
+                    },
+                    fontFamily: {
+                        serif: ['Playfair Display', 'Georgia', 'serif'],
+                        sans: ['Inter', 'Helvetica', 'Arial', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @media print {
+            body * { visibility: hidden; }
+            #receipt-modal, #receipt-modal * { visibility: visible; }
+            #receipt-modal { position: absolute; left: 0; top: 0; width: 100%; background: white; }
+            .no-print { display: none !important; }
+        }
+    </style>
+</head>
+<body class="bg-ivory text-charcoal font-sans antialiased min-h-screen">
+
+    <!-- LOGIN SCREEN -->
+    <div id="login-screen" class="min-h-screen flex items-center justify-center p-6">
+        <div class="bg-white border border-cream shadow-lg max-w-md w-full p-10 space-y-8 text-center">
+            <div class="space-y-2">
+                <span class="text-[11px] uppercase tracking-[0.25em] text-champagne-dark font-semibold">Internal Operations</span>
+                <h1 class="font-serif text-3xl tracking-widest font-bold text-charcoal">LUMIÈRE</h1>
+                <p class="text-xs text-muted">Merchant POS &amp; Vault Management</p>
+            </div>
+
+            <form id="login-form" onsubmit="handleLogin(event)" class="space-y-5 text-left">
+                <div>
+                    <label class="block text-xs uppercase tracking-wider text-muted mb-2">Enter Merchant / Admin PIN</label>
+                    <input type="password" id="login-pin" inputmode="numeric" required placeholder="••••"
+                           class="w-full px-4 py-4 bg-ivory border border-cream text-center text-2xl tracking-[0.4em] font-semibold focus:outline-none focus:border-champagne">
+                </div>
+                <div id="login-error" class="hidden text-xs text-red-600 bg-red-50 border border-red-200 p-3 text-center"></div>
+                <button type="submit" id="login-btn" class="w-full bg-charcoal text-ivory py-4 text-xs tracking-[0.2em] uppercase font-medium hover:bg-champagne transition">
+                    Access Portal
+                </button>
+            </form>
+
+            <div class="pt-2 border-t border-cream">
+                <a href="index.html" class="text-xs text-muted hover:text-charcoal transition">
+                    <i class="fas fa-arrow-left mr-1"></i> Back to Public Catalog
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN PORTAL APP -->
+    <div id="portal-app" class="hidden min-h-screen flex flex-col">
+        <!-- Top Header -->
+        <header class="bg-charcoal text-ivory sticky top-0 z-30 border-b border-gray-800">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <span class="font-serif text-xl tracking-widest font-bold">LUMIÈRE</span>
+                    <span id="user-badge" class="bg-champagne/20 text-champagne border border-champagne/40 px-2.5 py-0.5 text-[11px] uppercase tracking-wider font-medium"></span>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <button onclick="refreshPortalData()" id="refresh-btn" class="text-xs text-gray-300 hover:text-champagne px-3 py-1.5 border border-gray-700 transition" title="Sync with Google Sheet">
+                        <i class="fas fa-sync-alt mr-1"></i> Sync
+                    </button>
+                    <button onclick="logout()" class="text-xs text-gray-300 hover:text-white px-3 py-1.5 bg-gray-800 transition">
+                        Sign Out
+                    </button>
+                </div>
+            </div>
+
+            <!-- Navigation Tabs -->
+            <div class="bg-charcoal/95 border-t border-gray-800 overflow-x-auto">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 flex space-x-2">
+                    <button onclick="switchTab('pos')" data-tab="pos" class="tab-btn px-4 py-3 text-xs uppercase tracking-widest font-medium border-b-2 border-champagne text-champagne whitespace-nowrap">
+                        <i class="fas fa-barcode mr-1.5"></i> POS &amp; New Order
+                    </button>
+                    <button onclick="switchTab('mystock')" data-tab="mystock" class="tab-btn px-4 py-3 text-xs uppercase tracking-widest font-medium border-b-2 border-transparent text-gray-400 hover:text-white whitespace-nowrap">
+                        <i class="far fa-gem mr-1.5"></i> Stock (<span id="stock-tab-count">0</span>)
+                    </button>
+                    <button onclick="switchTab('orders')" data-tab="orders" class="tab-btn px-4 py-3 text-xs uppercase tracking-widest font-medium border-b-2 border-transparent text-gray-400 hover:text-white whitespace-nowrap">
+                        <i class="fas fa-receipt mr-1.5"></i> Orders
+                    </button>
+                    <button onclick="switchTab('customers')" data-tab="customers" class="tab-btn px-4 py-3 text-xs uppercase tracking-widest font-medium border-b-2 border-transparent text-gray-400 hover:text-white whitespace-nowrap">
+                        <i class="fas fa-users mr-1.5"></i> Customers
+                    </button>
+                    <button id="admin-assign-tab-btn" onclick="switchTab('assign')" data-tab="assign" class="hidden tab-btn px-4 py-3 text-xs uppercase tracking-widest font-medium border-b-2 border-transparent text-gray-400 hover:text-white whitespace-nowrap">
+                        <i class="fas fa-exchange-alt mr-1.5"></i> Assign Stock
+                    </button>
+                    <button id="admin-analytics-tab-btn" onclick="switchTab('analytics')" data-tab="analytics" class="hidden tab-btn px-4 py-3 text-xs uppercase tracking-widest font-medium border-b-2 border-transparent text-gray-400 hover:text-white whitespace-nowrap">
+                        <i class="fas fa-chart-line mr-1.5"></i> Analytics
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Toast Notification -->
+        <div id="toast" class="fixed bottom-5 right-5 z-50 hidden bg-charcoal text-ivory px-5 py-3.5 shadow-xl border-l-4 border-champagne text-xs tracking-wide"></div>
+
+        <!-- MAIN CONTENT -->
+        <main class="max-w-7xl mx-auto w-full px-4 sm:px-6 py-8 flex-1">
+
+            <!-- TAB 1: POS & NEW ORDER -->
+            <div id="view-pos" class="tab-view grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <!-- Left Column: Scanner + Cart Items -->
+                <div class="lg:col-span-7 space-y-6">
+                    <!-- Bluetooth Scanner Box -->
+                    <div class="bg-white p-6 border border-cream shadow-sm space-y-3">
+                        <div class="flex items-center justify-between">
+                            <label for="scanner-input" class="text-xs uppercase tracking-widest font-semibold text-charcoal flex items-center gap-2">
+                                <i class="fas fa-barcode text-champagne-dark text-base"></i> Scan or Enter Serial # (8...)
+                            </label>
+                            <span class="text-[11px] text-emerald-700 bg-emerald-50 px-2 py-0.5 font-medium">Scanner Ready</span>
+                        </div>
+                        <form onsubmit="handleScanSubmit(event)" class="flex gap-2">
+                            <input type="text" id="scanner-input" placeholder="Scan tag or type 80446..." autocomplete="off"
+                                   class="flex-1 px-4 py-3.5 bg-ivory border-2 border-champagne/60 text-lg font-mono font-semibold focus:outline-none focus:border-champagne">
+                            <button type="submit" class="bg-charcoal text-ivory px-6 py-3.5 text-xs uppercase tracking-widest font-medium hover:bg-champagne transition">
+                                Add
+                            </button>
+                        </form>
+                        <p class="text-[11px] text-muted">Tip: Keep cursor here for Bluetooth barcode scanners, or click any item in your Stock tab to add it.</p>
+                    </div>
+
+                    <!-- Active Order Items -->
+                    <div class="bg-white border border-cream shadow-sm">
+                        <div class="p-5 border-b border-cream flex items-center justify-between">
+                            <h2 class="font-serif text-xl">Order Items (<span id="cart-count">0</span>)</h2>
+                            <button onclick="clearCart()" class="text-xs text-muted hover:text-red-600 underline">Clear All</button>
+                        </div>
+                        <div id="cart-items-container" class="divide-y divide-cream">
+                            <div class="p-12 text-center text-muted text-sm">
+                                Scan a serial number starting with <strong class="text-charcoal">8...</strong> to begin an order.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Customer, Pricing Division, Tax & Split Payment -->
+                <div class="lg:col-span-5 space-y-6">
+                    <!-- Step 1: Customer Selection -->
+                    <div class="bg-white p-6 border border-cream shadow-sm space-y-4">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-xs uppercase tracking-widest font-semibold text-charcoal">1. Customer</h3>
+                            <button onclick="openNewCustomerModal()" class="text-xs text-champagne-dark font-semibold hover:underline">
+                                + New Customer
+                            </button>
+                        </div>
+                        <select id="pos-customer-select" onchange="updateCustomerBalanceBanner()" class="w-full p-3 bg-ivory border border-cream text-sm focus:outline-none focus:border-champagne">
+                            <option value="">-- Walk-In / Select Customer --</option>
+                        </select>
+                        <div id="selected-customer-balance" class="hidden text-xs bg-amber-50 border border-amber-200 text-amber-900 p-2.5 flex justify-between">
+                            <span>Existing Account Balance Owed:</span>
+                            <strong id="selected-customer-balance-amt">$0</strong>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Division Tier & 18% Tax Toggle -->
+                    <div class="bg-white p-6 border border-cream shadow-sm space-y-5">
+                        <h3 class="text-xs uppercase tracking-widest font-semibold text-charcoal">2. Price Tier &amp; Tax</h3>
+
+                        <!-- Division Buttons -->
+                        <div>
+                            <label class="block text-[11px] uppercase tracking-wider text-muted mb-2">Divide Original Price By:</label>
+                            <div class="grid grid-cols-3 gap-2">
+                                <button type="button" onclick="setDivision(1)" data-div="1" class="div-btn py-2.5 text-xs font-semibold border border-charcoal bg-charcoal text-ivory">Original (÷1)</button>
+                                <button type="button" onclick="setDivision(2)" data-div="2" class="div-btn py-2.5 text-xs font-semibold border border-cream bg-ivory hover:border-champagne">÷ 2</button>
+                                <button type="button" onclick="setDivision(3)" data-div="3" class="div-btn py-2.5 text-xs font-semibold border border-cream bg-ivory hover:border-champagne">÷ 3</button>
+                                <button type="button" onclick="setDivision(3.4)" data-div="3.4" class="div-btn py-2.5 text-xs font-semibold border border-cream bg-ivory hover:border-champagne">÷ 3.4</button>
+                                <button type="button" onclick="setDivision(3.6)" data-div="3.6" class="div-btn py-2.5 text-xs font-semibold border border-cream bg-ivory hover:border-champagne">÷ 3.6</button>
+                                <button type="button" onclick="setDivision('custom')" data-div="custom" class="div-btn py-2.5 text-xs font-semibold border border-cream bg-ivory hover:border-champagne">Custom</button>
+                            </div>
+                            <div id="custom-div-wrapper" class="hidden mt-3">
+                                <label class="block text-[11px] text-muted mb-1">Enter Custom Divisor (e.g. 2.5):</label>
+                                <input type="number" id="custom-div-input" step="0.01" min="0.1" value="1" oninput="recalculateTotals()"
+                                       class="w-full p-2.5 bg-ivory border border-champagne text-sm font-semibold">
+                            </div>
+                        </div>
+
+                        <!-- 18% Tax Toggle -->
+                        <div class="flex items-center justify-between pt-3 border-t border-cream">
+                            <div>
+                                <span class="text-sm font-medium text-charcoal block">Add 18% VAT Tax</span>
+                                <span class="text-[11px] text-muted">Toggle on for Israeli tax invoices</span>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="tax-toggle" onchange="recalculateTotals()" class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-champagne after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full"></div>
+                            </label>
+                        </div>
+
+                        <!-- Totals Breakdown -->
+                        <div class="bg-ivory p-4 border border-cream space-y-2 text-xs">
+                            <div class="flex justify-between text-muted">
+                                <span>Original Catalog Total:</span>
+                                <span id="summary-original">$0.00</span>
+                            </div>
+                            <div class="flex justify-between font-medium text-charcoal">
+                                <span>Subtotal (<span id="summary-tier-label">Original</span>):</span>
+                                <span id="summary-subtotal">$0.00</span>
+                            </div>
+                            <div class="flex justify-between text-muted">
+                                <span>VAT Tax (18%):</span>
+                                <span id="summary-tax">$0.00</span>
+                            </div>
+                            <div class="flex justify-between text-base font-serif font-bold text-charcoal pt-2 border-t border-cream">
+                                <span>Final Total:</span>
+                                <span id="summary-final">$0.00</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Split Payment Sources -->
+                    <div class="bg-white p-6 border border-cream shadow-sm space-y-4">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-xs uppercase tracking-widest font-semibold text-charcoal">3. Split Payment</h3>
+                            <button type="button" onclick="fillRemainingTo('cash')" class="text-[11px] text-champagne-dark underline">Auto-fill Cash</button>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3 text-xs">
+                            <div>
+                                <label class="block text-muted mb-1"><i class="fas fa-money-bill-wave mr-1 text-emerald-700"></i> Cash ($)</label>
+                                <input type="number" id="pay-cash" step="0.01" min="0" placeholder="0.00" oninput="recalculatePayments()"
+                                       class="w-full p-2.5 bg-ivory border border-cream font-semibold focus:border-champagne focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-muted mb-1"><i class="fas fa-money-check mr-1 text-blue-700"></i> Check ($)</label>
+                                <input type="number" id="pay-check" step="0.01" min="0" placeholder="0.00" oninput="recalculatePayments()"
+                                       class="w-full p-2.5 bg-ivory border border-cream font-semibold focus:border-champagne focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-muted mb-1"><i class="fas fa-university mr-1 text-indigo-700"></i> Bank Transfer ($)</label>
+                                <input type="number" id="pay-bank" step="0.01" min="0" placeholder="0.00" oninput="recalculatePayments()"
+                                       class="w-full p-2.5 bg-ivory border border-cream font-semibold focus:border-champagne focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-muted mb-1"><i class="fas fa-file-invoice-dollar mr-1 text-amber-700"></i> On Account / Owed ($)</label>
+                                <input type="number" id="pay-account" step="0.01" min="0" placeholder="0.00" oninput="recalculatePayments()"
+                                       class="w-full p-2.5 bg-ivory border border-cream font-semibold focus:border-champagne focus:outline-none">
+                            </div>
+                        </div>
+
+                        <div>
+                            <input type="text" id="pay-notes" placeholder="Check #, bank reference, or due date notes..."
+                                   class="w-full p-2.5 bg-ivory border border-cream text-xs focus:outline-none focus:border-champagne">
+                        </div>
+
+                        <div class="flex items-center justify-between text-xs pt-2 border-t border-cream">
+                            <span class="text-muted">Unallocated Balance:</span>
+                            <span id="unallocated-balance" class="font-bold text-charcoal">$0.00</span>
+                        </div>
+
+                        <button type="button" id="complete-order-btn" onclick="submitOrder()"
+                                class="w-full bg-champagne text-white py-4 text-xs tracking-[0.2em] uppercase font-bold hover:bg-champagne-dark transition shadow-md">
+                            Complete Sale &amp; Print Receipt
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: STOCK VIEW (Merchant's Assigned Items or Admin's Full Vault) -->
+            <div id="view-mystock" class="tab-view hidden space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 border border-cream">
+                    <div>
+                        <h2 id="stock-view-title" class="font-serif text-2xl">Available Inventory</h2>
+                        <p id="stock-view-subtitle" class="text-xs text-muted">Click any item to add it directly to your POS order.</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <input type="text" id="stock-search" oninput="renderStockTable()" placeholder="Search serial #, model, details..."
+                               class="px-4 py-2 bg-ivory border border-cream text-xs w-64 focus:outline-none focus:border-champagne">
+                        <select id="stock-status-filter" onchange="renderStockTable()" class="hidden px-3 py-2 bg-ivory border border-cream text-xs">
+                            <option value="all">All Statuses</option>
+                            <option value="vault">In Main Vault</option>
+                            <option value="assigned">Assigned to Merchants</option>
+                            <option value="sold">Sold</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="bg-white border border-cream overflow-x-auto shadow-sm">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-cream/70 uppercase tracking-wider text-muted border-b border-cream">
+                            <tr>
+                                <th class="p-4">Photo</th>
+                                <th class="p-4">Serial # (ID)</th>
+                                <th class="p-4">Model &amp; Details</th>
+                                <th class="p-4">Specs</th>
+                                <th class="p-4">Price</th>
+                                <th class="p-4">Status</th>
+                                <th class="p-4 text-right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="stock-table-body" class="divide-y divide-cream"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB 3: ORDERS LEDGER -->
+            <div id="view-orders" class="tab-view hidden space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 border border-cream">
+                    <div>
+                        <h2 class="font-serif text-2xl">Orders History</h2>
+                        <p class="text-xs text-muted">Live sync with the Orders tab in Google Sheets.</p>
+                    </div>
+                    <input type="text" id="orders-search" oninput="renderOrdersTable()" placeholder="Search order ID, customer, serial #..."
+                           class="px-4 py-2 bg-ivory border border-cream text-xs w-64 focus:outline-none focus:border-champagne">
+                </div>
+
+                <div class="bg-white border border-cream overflow-x-auto shadow-sm">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-cream/70 uppercase tracking-wider text-muted border-b border-cream">
+                            <tr>
+                                <th class="p-4">Order ID &amp; Date</th>
+                                <th class="p-4">Merchant</th>
+                                <th class="p-4">Customer</th>
+                                <th class="p-4">Serial #s</th>
+                                <th class="p-4">Tier / Tax</th>
+                                <th class="p-4">Final Total</th>
+                                <th class="p-4">Payment Split</th>
+                                <th class="p-4 text-right">Receipt</th>
+                            </tr>
+                        </thead>
+                        <tbody id="orders-table-body" class="divide-y divide-cream"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB 4: CUSTOMERS & ACCOUNT BALANCES -->
+            <div id="view-customers" class="tab-view hidden space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 border border-cream">
+                    <div>
+                        <h2 class="font-serif text-2xl">Customers &amp; Balances Owed</h2>
+                        <p class="text-xs text-muted">Track client contact info and open Account balances.</p>
+                    </div>
+                    <button onclick="openNewCustomerModal()" class="bg-charcoal text-ivory px-5 py-2.5 text-xs uppercase tracking-widest hover:bg-champagne transition">
+                        + Add Customer
+                    </button>
+                </div>
+
+                <div class="bg-white border border-cream overflow-x-auto shadow-sm">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-cream/70 uppercase tracking-wider text-muted border-b border-cream">
+                            <tr>
+                                <th class="p-4">Customer</th>
+                                <th class="p-4">Company / Store</th>
+                                <th class="p-4">Phone / Email</th>
+                                <th class="p-4">Notes</th>
+                                <th class="p-4">Balance Owed</th>
+                                <th class="p-4 text-right">Settle Balance</th>
+                            </tr>
+                        </thead>
+                        <tbody id="customers-table-body" class="divide-y divide-cream"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB 5: ADMIN ASSIGN STOCK TO MERCHANTS -->
+            <div id="view-assign" class="tab-view hidden space-y-6">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    <div class="lg:col-span-5 bg-white p-6 border border-cream shadow-sm space-y-5">
+                        <div>
+                            <span class="text-[11px] uppercase tracking-widest text-champagne-dark font-semibold">Admin Vault Control</span>
+                            <h2 class="font-serif text-2xl mt-1">Assign Items to Merchant</h2>
+                            <p class="text-xs text-muted mt-1">Scan or paste serial numbers (8...) to assign them to a merchant's POS.</p>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs uppercase tracking-wider text-muted mb-2">Select Destination</label>
+                            <select id="assign-merchant-select" class="w-full p-3 bg-ivory border border-cream text-sm font-medium">
+                                <option value="">Return to Main Vault (Clear Assignment)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs uppercase tracking-wider text-muted mb-2">Scan or Enter Serial Numbers (one per line or comma-separated)</label>
+                            <textarea id="assign-serials-input" rows="6" placeholder="80446&#10;80447&#10;80448"
+                                      class="w-full p-3 bg-ivory border border-cream font-mono text-sm focus:outline-none focus:border-champagne"></textarea>
+                        </div>
+
+                        <button onclick="submitStockAssignment()" id="assign-submit-btn" class="w-full bg-charcoal text-ivory py-4 text-xs uppercase tracking-[0.2em] font-semibold hover:bg-champagne transition">
+                            Update Stock Assignment
+                        </button>
+                    </div>
+
+                    <div class="lg:col-span-7 bg-white p-6 border border-cream shadow-sm space-y-4">
+                        <h3 class="font-serif text-xl">Current Merchant Allocations</h3>
+                        <div id="merchant-allocations-summary" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 6: ADMIN ANALYTICS & SALES CHARTS -->
+            <div id="view-analytics" class="tab-view hidden space-y-8">
+                <!-- KPI Summary Cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                    <div class="bg-white p-6 border border-cream shadow-sm">
+                        <span class="text-[11px] uppercase tracking-widest text-muted">Total Sales Revenue</span>
+                        <div id="kpi-total-revenue" class="font-serif text-3xl font-bold text-charcoal mt-2">$0</div>
+                    </div>
+                    <div class="bg-white p-6 border border-cream shadow-sm">
+                        <span class="text-[11px] uppercase tracking-widest text-muted">Total Orders</span>
+                        <div id="kpi-total-orders" class="font-serif text-3xl font-bold text-charcoal mt-2">0</div>
+                    </div>
+                    <div class="bg-white p-6 border border-cream shadow-sm">
+                        <span class="text-[11px] uppercase tracking-widest text-muted">Open Customer Receivables</span>
+                        <div id="kpi-total-owed" class="font-serif text-3xl font-bold text-amber-700 mt-2">$0</div>
+                    </div>
+                    <div class="bg-white p-6 border border-cream shadow-sm">
+                        <span class="text-[11px] uppercase tracking-widest text-muted">Active Stock Count</span>
+                        <div id="kpi-active-stock" class="font-serif text-3xl font-bold text-emerald-700 mt-2">0</div>
+                    </div>
+                </div>
+
+                <!-- Charts Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="bg-white p-6 border border-cream shadow-sm">
+                        <h3 class="font-serif text-lg mb-4">Sales by Merchant ($)</h3>
+                        <canvas id="chart-merchants" height="220"></canvas>
+                    </div>
+                    <div class="bg-white p-6 border border-cream shadow-sm">
+                        <h3 class="font-serif text-lg mb-4">Payment Methods Breakdown ($)</h3>
+                        <canvas id="chart-payments" height="220"></canvas>
+                    </div>
+                    <div class="bg-white p-6 border border-cream shadow-sm lg:col-span-2">
+                        <h3 class="font-serif text-lg mb-4">Daily Sales Trend ($)</h3>
+                        <canvas id="chart-timeline" height="120"></canvas>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- NEW CUSTOMER MODAL -->
+    <div id="new-customer-modal" class="fixed inset-0 z-50 bg-black/60 hidden flex items-center justify-center p-4">
+        <div class="bg-white max-w-md w-full p-8 space-y-5 shadow-2xl">
+            <div class="flex items-center justify-between border-b border-cream pb-3">
+                <h3 class="font-serif text-xl">Add New Customer</h3>
+                <button onclick="closeNewCustomerModal()" class="text-muted hover:text-charcoal"><i class="fas fa-times"></i></button>
+            </div>
+            <form onsubmit="submitNewCustomer(event)" class="space-y-3 text-xs">
+                <div>
+                    <label class="block text-muted mb-1">Full Name *</label>
+                    <input type="text" id="cust-name" required class="w-full p-2.5 bg-ivory border border-cream">
+                </div>
+                <div>
+                    <label class="block text-muted mb-1">Phone</label>
+                    <input type="text" id="cust-phone" class="w-full p-2.5 bg-ivory border border-cream">
+                </div>
+                <div>
+                    <label class="block text-muted mb-1">Email</label>
+                    <input type="email" id="cust-email" class="w-full p-2.5 bg-ivory border border-cream">
+                </div>
+                <div>
+                    <label class="block text-muted mb-1">Company / Jewelry Store</label>
+                    <input type="text" id="cust-company" class="w-full p-2.5 bg-ivory border border-cream">
+                </div>
+                <div>
+                    <label class="block text-muted mb-1">Notes</label>
+                    <input type="text" id="cust-notes" class="w-full p-2.5 bg-ivory border border-cream">
+                </div>
+                <button type="submit" class="w-full bg-charcoal text-ivory py-3.5 uppercase tracking-widest font-semibold hover:bg-champagne transition mt-2">
+                    Save Customer
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- PRINTABLE RECEIPT MODAL -->
+    <div id="receipt-modal" class="fixed inset-0 z-50 bg-black/60 hidden flex items-center justify-center p-4">
+        <div class="bg-white max-w-lg w-full p-8 space-y-6 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <div class="text-center border-b border-cream pb-4 space-y-1">
+                <h2 class="font-serif text-2xl tracking-widest font-bold">LUMIÈRE</h2>
+                <p class="text-[11px] uppercase tracking-widest text-muted">Fine Lab-Grown Diamond Jewelry • Official Sales Receipt</p>
+            </div>
+            <div id="receipt-content" class="space-y-4 text-xs"></div>
+            <div class="flex gap-3 pt-4 border-t border-cream no-print">
+                <button onclick="window.print()" class="flex-1 bg-charcoal text-ivory py-3 text-xs uppercase tracking-widest hover:bg-champagne transition">
+                    <i class="fas fa-print mr-1.5"></i> Print / Save PDF
+                </button>
+                <button onclick="document.getElementById('receipt-modal').classList.add('hidden')" class="px-6 py-3 border border-cream text-xs uppercase tracking-widest">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script>
+        let sessionPassword = "";
+        let currentUser = null;
+        let portalData = { inventory: [], merchants: [], customers: [], orders: [] };
+        let cart = [];
+        let activeDivision = 1;
+        let chartInstances = {};
+
+        function getApiUrl() {
+            return (window.LUMIERE_CONFIG && window.LUMIERE_CONFIG.apiUrl) || "";
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.classList.remove('hidden');
+            setTimeout(() => toast.classList.add('hidden'), 3500);
+        }
+
+        async function apiPost(payload) {
+            const res = await fetch(getApiUrl(), {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({ ...payload, password: sessionPassword })
+            });
+            const data = await res.json();
+            if (data.status !== 'success') {
+                throw new Error(data.message || 'Server error');
+            }
+            return data;
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const pin = document.getElementById('login-pin').value.trim();
+            const errBox = document.getElementById('login-error');
+            const btn = document.getElementById('login-btn');
+
+            errBox.classList.add('hidden');
+            btn.textContent = 'Verifying...';
+            btn.disabled = true;
+
+            try {
+                sessionPassword = pin;
+                const res = await apiPost({ action: 'login' });
+                currentUser = res.user;
+                portalData = res.data;
+
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('portal-app').classList.remove('hidden');
+                document.getElementById('user-badge').textContent = `${currentUser.name} • ${currentUser.role}`;
+
+                if (currentUser.role === 'Admin') {
+                    document.getElementById('admin-assign-tab-btn').classList.remove('hidden');
+                    document.getElementById('admin-analytics-tab-btn').classList.remove('hidden');
+                    document.getElementById('stock-status-filter').classList.remove('hidden');
+                    document.getElementById('stock-view-title').textContent = 'Master Vault & Merchant Stock';
+                }
+
+                syncAllViews();
+                document.getElementById('scanner-input').focus();
+            } catch (err) {
+                sessionPassword = "";
+                errBox.textContent = err.message;
+                errBox.classList.remove('hidden');
+            } finally {
+                btn.textContent = 'Access Portal';
+                btn.disabled = false;
+            }
+        }
+
+        function logout() {
+            sessionPassword = "";
+            currentUser = null;
+            cart = [];
+            document.getElementById('login-pin').value = '';
+            document.getElementById('portal-app').classList.add('hidden');
+            document.getElementById('login-screen').classList.remove('hidden');
+        }
+
+        async function refreshPortalData() {
+            const btn = document.getElementById('refresh-btn');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Syncing';
+            try {
+                const res = await apiPost({ action: 'refresh' });
+                portalData = res.data;
+                syncAllViews();
+                showToast('Synced with Google Sheet');
+            } catch (err) {
+                showToast('Sync failed: ' + err.message);
+            } finally {
+                btn.innerHTML = '<i class="fas fa-sync-alt mr-1"></i> Sync';
+            }
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-view').forEach(el => el.classList.add('hidden'));
+            document.getElementById('view-' + tabName).classList.remove('hidden');
+
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                if (btn.dataset.tab === tabName) {
+                    btn.classList.add('border-champagne', 'text-champagne');
+                    btn.classList.remove('border-transparent', 'text-gray-400');
+                } else {
+                    btn.classList.remove('border-champagne', 'text-champagne');
+                    btn.classList.add('border-transparent', 'text-gray-400');
+                }
+            });
+
+            if (tabName === 'pos') document.getElementById('scanner-input').focus();
+            if (tabName === 'analytics') renderAnalyticsCharts();
+        }
+
+        function syncAllViews() {
+            const activeItems = portalData.inventory.filter(i => i.status.toLowerCase() !== 'sold');
+            document.getElementById('stock-tab-count').textContent = activeItems.length;
+
+            populateCustomerDropdown();
+            populateMerchantAssignDropdown();
+            renderCart();
+            renderStockTable();
+            renderOrdersTable();
+            renderCustomersTable();
+            renderAllocationsSummary();
+        }
+
+        /* ---------------- POS & BLUETOOTH SCANNER ---------------- */
+
+        function handleScanSubmit(e) {
+            e.preventDefault();
+            const input = document.getElementById('scanner-input');
+            const serial = input.value.trim();
+            input.value = '';
+            if (!serial) return;
+
+            addSerialToCart(serial);
+        }
+
+        function addSerialToCart(serial) {
+            const cleanSerial = String(serial).trim();
+            if (cart.some(c => c.id === cleanSerial)) {
+                showToast(`Item #${cleanSerial} is already in this order.`);
+                return;
+            }
+
+            const item = portalData.inventory.find(i => i.id === cleanSerial && i.status.toLowerCase() !== 'sold');
+            if (!item) {
+                showToast(`Serial #${cleanSerial} not found in your available stock.`);
+                return;
+            }
+
+            cart.push(item);
+            renderCart();
+            showToast(`Added #${cleanSerial} (${item.modelNumber || item.category})`);
+        }
+
+        function removeFromCart(serial) {
+            cart = cart.filter(c => c.id !== serial);
+            renderCart();
+        }
+
+        function clearCart() {
+            cart = [];
+            renderCart();
+        }
+
+        function setDivision(div) {
+            activeDivision = div;
+            document.querySelectorAll('.div-btn').forEach(btn => {
+                if (String(btn.dataset.div) === String(div)) {
+                    btn.classList.add('border-charcoal', 'bg-charcoal', 'text-ivory');
+                    btn.classList.remove('border-cream', 'bg-ivory');
+                } else {
+                    btn.classList.remove('border-charcoal', 'bg-charcoal', 'text-ivory');
+                    btn.classList.add('border-cream', 'bg-ivory');
+                }
+            });
+
+            const customWrap = document.getElementById('custom-div-wrapper');
+            if (div === 'custom') {
+                customWrap.classList.remove('hidden');
+            } else {
+                customWrap.classList.add('hidden');
+            }
+            recalculateTotals();
+        }
+
+        function getEffectiveDivisor() {
+            if (activeDivision === 'custom') {
+                const val = parseFloat(document.getElementById('custom-div-input').value);
+                return (val && val > 0) ? val : 1;
+            }
+            return Number(activeDivision) || 1;
+        }
+
+        function renderCart() {
+            const container = document.getElementById('cart-items-container');
+            document.getElementById('cart-count').textContent = cart.length;
+
+            if (cart.length === 0) {
+                container.innerHTML = `<div class="p-12 text-center text-muted text-sm">Scan a serial number starting with <strong class="text-charcoal">8...</strong> to begin an order.</div>`;
+                recalculateTotals();
+                return;
+            }
+
+            const divisor = getEffectiveDivisor();
+            const fallback = (window.LUMIERE_CONFIG && window.LUMIERE_CONFIG.fallbackImage) || '';
+
+            container.innerHTML = cart.map(item => {
+                const adjusted = item.price / divisor;
+                return `
+                    <div class="p-4 flex items-center justify-between gap-4">
+                        <div class="flex items-center gap-3">
+                            <img src="${item.image || fallback}" class="w-14 h-14 object-contain bg-cream p-1" onerror="this.src='${fallback}'">
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <span class="bg-charcoal text-ivory text-[10px] font-mono px-2 py-0.5">#${item.id}</span>
+                                    <span class="text-xs font-semibold text-charcoal">${item.modelNumber}</span>
+                                </div>
+                                <p class="text-xs text-muted mt-0.5">${item.details || item.category} • ${item.caratWeight || '-'} CT • ${item.goldColor || item.metal}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <div class="text-right">
+                                ${divisor !== 1 ? `<span class="text-[11px] text-muted line-through block">$${item.price.toLocaleString()}</span>` : ''}
+                                <span class="font-serif text-base font-bold text-charcoal">$${adjusted.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                            </div>
+                            <button onclick="removeFromCart('${item.id}')" class="text-muted hover:text-red-600 p-1">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            recalculateTotals();
+        }
+
+        function recalculateTotals() {
+            const divisor = getEffectiveDivisor();
+            const taxEnabled = document.getElementById('tax-toggle').checked;
+
+            const originalTotal = cart.reduce((sum, item) => sum + Number(item.price || 0), 0);
+            const subtotal = originalTotal / divisor;
+            const taxAmount = taxEnabled ? subtotal * 0.18 : 0;
+            const finalTotal = subtotal + taxAmount;
+
+            document.getElementById('summary-original').textContent = `$${originalTotal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            document.getElementById('summary-tier-label').textContent = divisor === 1 ? 'Original' : `÷ ${divisor}`;
+            document.getElementById('summary-subtotal').textContent = `$${subtotal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            document.getElementById('summary-tax').textContent = `$${taxAmount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            document.getElementById('summary-final').textContent = `$${finalTotal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+
+            // Update item row prices without full DOM rebuild if needed
+            if (cart.length > 0 && activeDivision === 'custom') {
+                const fallback = (window.LUMIERE_CONFIG && window.LUMIERE_CONFIG.fallbackImage) || '';
+                document.getElementById('cart-items-container').innerHTML = cart.map(item => {
+                    const adjusted = item.price / divisor;
+                    return `
+                        <div class="p-4 flex items-center justify-between gap-4">
+                            <div class="flex items-center gap-3">
+                                <img src="${item.image || fallback}" class="w-14 h-14 object-contain bg-cream p-1" onerror="this.src='${fallback}'">
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="bg-charcoal text-ivory text-[10px] font-mono px-2 py-0.5">#${item.id}</span>
+                                        <span class="text-xs font-semibold text-charcoal">${item.modelNumber}</span>
+                                    </div>
+                                    <p class="text-xs text-muted mt-0.5">${item.details || item.category} • ${item.caratWeight || '-'} CT</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <div class="text-right">
+                                    ${divisor !== 1 ? `<span class="text-[11px] text-muted line-through block">$${item.price.toLocaleString()}</span>` : ''}
+                                    <span class="font-serif text-base font-bold text-charcoal">$${adjusted.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                                </div>
+                                <button onclick="removeFromCart('${item.id}')" class="text-muted hover:text-red-600 p-1"><i class="fas fa-times"></i></button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            recalculatePayments();
+            return { originalTotal, divisor, subtotal, taxEnabled, taxAmount, finalTotal };
+        }
+
+        function getFinalTotalNumber() {
+            const divisor = getEffectiveDivisor();
+            const taxEnabled = document.getElementById('tax-toggle').checked;
+            const originalTotal = cart.reduce((sum, item) => sum + Number(item.price || 0), 0);
+            const subtotal = originalTotal / divisor;
+            return subtotal + (taxEnabled ? subtotal * 0.18 : 0);
+        }
+
+        function recalculatePayments() {
+            const finalTotal = getFinalTotalNumber();
+            const cash = parseFloat(document.getElementById('pay-cash').value) || 0;
+            const check = parseFloat(document.getElementById('pay-check').value) || 0;
+            const bank = parseFloat(document.getElementById('pay-bank').value) || 0;
+            const account = parseFloat(document.getElementById('pay-account').value) || 0;
+
+            const allocated = cash + check + bank + account;
+            const remaining = finalTotal - allocated;
+
+            const el = document.getElementById('unallocated-balance');
+            el.textContent = `$${remaining.toFixed(2)}`;
+            if (Math.abs(remaining) < 0.05) {
+                el.className = 'font-bold text-emerald-700';
+            } else {
+                el.className = 'font-bold text-red-600';
+            }
+        }
+
+        function fillRemainingTo(field) {
+            const finalTotal = getFinalTotalNumber();
+            const cash = field === 'cash' ? 0 : (parseFloat(document.getElementById('pay-cash').value) || 0);
+            const check = field === 'check' ? 0 : (parseFloat(document.getElementById('pay-check').value) || 0);
+            const bank = field === 'bank' ? 0 : (parseFloat(document.getElementById('pay-bank').value) || 0);
+            const account = field === 'account' ? 0 : (parseFloat(document.getElementById('pay-account').value) || 0);
+
+            const rem = Math.max(0, finalTotal - (cash + check + bank + account));
+            document.getElementById('pay-' + field).value = rem.toFixed(2);
+            recalculatePayments();
+        }
+
+        async function submitOrder() {
+            if (cart.length === 0) {
+                showToast('Add at least one item to complete an order.');
+                return;
+            }
+
+            const totals = recalculateTotals();
+            const cash = parseFloat(document.getElementById('pay-cash').value) || 0;
+            const check = parseFloat(document.getElementById('pay-check').value) || 0;
+            const bank = parseFloat(document.getElementById('pay-bank').value) || 0;
+            const account = parseFloat(document.getElementById('pay-account').value) || 0;
+            const allocated = cash + check + bank + account;
+
+            // If user didn't enter any split payment, default full total to Cash
+            let finalCash = cash;
+            if (allocated === 0 && totals.finalTotal > 0) {
+                finalCash = Number(totals.finalTotal.toFixed(2));
+            } else if (Math.abs(totals.finalTotal - allocated) > 0.10) {
+                showToast(`Split payments ($${allocated.toFixed(2)}) must equal Final Total ($${totals.finalTotal.toFixed(2)}).`);
+                return;
+            }
+
+            const custId = document.getElementById('pos-customer-select').value;
+            const custObj = portalData.customers.find(c => c.customerId === custId);
+            if (account > 0 && !custObj) {
+                showToast('Please select or create a Customer when placing an amount On Account.');
+                return;
+            }
+
+            const btn = document.getElementById('complete-order-btn');
+            btn.disabled = true;
+            btn.textContent = 'Recording Order...';
+
+            try {
+                const res = await apiPost({
+                    action: 'createOrder',
+                    order: {
+                        customerId: custObj ? custObj.customerId : '',
+                        customerName: custObj ? custObj.fullName : 'Walk-In Client',
+                        items: cart,
+                        originalTotal: Number(totals.originalTotal.toFixed(2)),
+                        divisionTier: totals.divisor === 1 ? 'Original' : `÷ ${totals.divisor}`,
+                        subtotal: Number(totals.subtotal.toFixed(2)),
+                        taxEnabled: totals.taxEnabled,
+                        taxAmount: Number(totals.taxAmount.toFixed(2)),
+                        finalTotal: Number(totals.finalTotal.toFixed(2)),
+                        cashPaid: finalCash,
+                        checkPaid: check,
+                        bankPaid: bank,
+                        accountOwed: account,
+                        paymentNotes: document.getElementById('pay-notes').value.trim()
+                    }
+                });
+
+                portalData = res.data;
+                cart = [];
+                ['pay-cash', 'pay-check', 'pay-bank', 'pay-account', 'pay-notes'].forEach(id => document.getElementById(id).value = '');
+                syncAllViews();
+                openReceiptModal(res.order);
+                showToast(`Order ${res.order.orderId} saved!`);
+            } catch (err) {
+                showToast('Order Error: ' + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Complete Sale & Print Receipt';
+            }
+        }
+
+        /* ---------------- STOCK, ORDERS & CUSTOMERS ---------------- */
+
+        function renderStockTable() {
+            const tbody = document.getElementById('stock-table-body');
+            const query = (document.getElementById('stock-search').value || '').toLowerCase();
+            const statusFilter = document.getElementById('stock-status-filter').value;
+            const fallback = (window.LUMIERE_CONFIG && window.LUMIERE_CONFIG.fallbackImage) || '';
+
+            const list = portalData.inventory.filter(item => {
+                const st = (item.status || '').toLowerCase();
+                if (currentUser.role !== 'Admin' && st === 'sold') return false;
+
+                if (statusFilter === 'vault' && st !== '') return false;
+                if (statusFilter === 'assigned' && !st.startsWith('assigned:')) return false;
+                if (statusFilter === 'sold' && st !== 'sold') return false;
+
+                if (!query) return true;
+                return (
+                    item.id.toLowerCase().includes(query) ||
+                    item.modelNumber.toLowerCase().includes(query) ||
+                    item.details.toLowerCase().includes(query) ||
+                    item.category.toLowerCase().includes(query) ||
+                    st.includes(query)
+                );
+            });
+
+            tbody.innerHTML = list.map(item => {
+                const isSold = (item.status || '').toLowerCase() === 'sold';
+                const badgeClass = isSold
+                    ? 'bg-red-100 text-red-800'
+                    : (item.status ? 'bg-amber-100 text-amber-900' : 'bg-emerald-100 text-emerald-800');
+                const badgeText = item.status || 'Main Vault';
+
+                return `
+                    <tr class="hover:bg-ivory/60">
+                        <td class="p-4"><img src="${item.image || fallback}" class="w-12 h-12 object-contain bg-cream p-1" onerror="this.src='${fallback}'"></td>
+                        <td class="p-4 font-mono font-bold text-charcoal">#${item.id}</td>
+                        <td class="p-4">
+                            <div class="font-semibold text-charcoal">${item.modelNumber}</div>
+                            <div class="text-muted line-clamp-1">${item.details || item.category}</div>
+                        </td>
+                        <td class="p-4 text-muted">${item.caratWeight || '-'} CT • ${item.color || '-'} / ${item.clarity || '-'} • ${item.goldColor || item.metal}</td>
+                        <td class="p-4 font-serif font-semibold">$${Number(item.price).toLocaleString()}</td>
+                        <td class="p-4"><span class="px-2.5 py-1 text-[10px] uppercase font-semibold ${badgeClass}">${badgeText}</span></td>
+                        <td class="p-4 text-right">
+                            ${!isSold ? `<button onclick="addSerialToCart('${item.id}'); switchTab('pos');" class="bg-charcoal text-ivory px-3 py-1.5 text-[10px] uppercase tracking-wider hover:bg-champagne transition">+ POS</button>` : '-'}
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function renderOrdersTable() {
+            const tbody = document.getElementById('orders-table-body');
+            const q = (document.getElementById('orders-search').value || '').toLowerCase();
+
+            const filtered = portalData.orders.filter(o =>
+                !q ||
+                o.orderId.toLowerCase().includes(q) ||
+                o.customerName.toLowerCase().includes(q) ||
+                o.serialNumbers.toLowerCase().includes(q) ||
+                o.merchantName.toLowerCase().includes(q)
+            );
+
+            tbody.innerHTML = filtered.map(o => {
+                const splits = [];
+                if (o.cashPaid > 0) splits.push(`Cash: $${o.cashPaid.toLocaleString()}`);
+                if (o.checkPaid > 0) splits.push(`Check: $${o.checkPaid.toLocaleString()}`);
+                if (o.bankPaid > 0) splits.push(`Bank: $${o.bankPaid.toLocaleString()}`);
+                if (o.accountOwed > 0) splits.push(`<span class="text-amber-700 font-semibold">Owed: $${o.accountOwed.toLocaleString()}</span>`);
+
+                return `
+                    <tr class="hover:bg-ivory/60">
+                        <td class="p-4">
+                            <div class="font-semibold text-charcoal">${o.orderId}</div>
+                            <div class="text-[11px] text-muted">${o.date}</div>
+                        </td>
+                        <td class="p-4">${o.merchantName}</td>
+                        <td class="p-4 font-medium">${o.customerName}</td>
+                        <td class="p-4 font-mono text-[11px]">${o.serialNumbers}</td>
+                        <td class="p-4">${o.divisionTier} ${o.taxEnabled === 'Yes' ? '(+18% VAT)' : ''}</td>
+                        <td class="p-4 font-serif font-bold text-sm">$${Number(o.finalTotal).toLocaleString()}</td>
+                        <td class="p-4 text-[11px] space-y-0.5">${splits.join('<br>') || '-'}</td>
+                        <td class="p-4 text-right">
+                            <button onclick='openReceiptModal(${JSON.stringify(o)})' class="border border-cream px-3 py-1.5 text-[10px] uppercase tracking-wider hover:border-champagne">
+                                View
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function populateCustomerDropdown() {
+            const sel = document.getElementById('pos-customer-select');
+            const currentVal = sel.value;
+            sel.innerHTML = `<option value="">-- Walk-In Client --</option>` +
+                portalData.customers.map(c =>
+                    `<option value="${c.customerId}">${c.fullName}${c.company ? ' (' + c.company + ')' : ''}${c.balanceOwed > 0 ? ' — Owes $' + c.balanceOwed : ''}</option>`
+                ).join('');
+            sel.value = currentVal;
+            updateCustomerBalanceBanner();
+        }
+
+        function updateCustomerBalanceBanner() {
+            const custId = document.getElementById('pos-customer-select').value;
+            const banner = document.getElementById('selected-customer-balance');
+            const cust = portalData.customers.find(c => c.customerId === custId);
+            if (cust && cust.balanceOwed > 0) {
+                document.getElementById('selected-customer-balance-amt').textContent = `$${Number(cust.balanceOwed).toLocaleString()}`;
+                banner.classList.remove('hidden');
+            } else {
+                banner.classList.add('hidden');
+            }
+        }
+
+        function openNewCustomerModal() {
+            document.getElementById('new-customer-modal').classList.remove('hidden');
+        }
+
+        function closeNewCustomerModal() {
+            document.getElementById('new-customer-modal').classList.add('hidden');
+        }
+
+        async function submitNewCustomer(e) {
+            e.preventDefault();
+            try {
+                const res = await apiPost({
+                    action: 'createCustomer',
+                    customer: {
+                        fullName: document.getElementById('cust-name').value,
+                        phone: document.getElementById('cust-phone').value,
+                        email: document.getElementById('cust-email').value,
+                        company: document.getElementById('cust-company').value,
+                        notes: document.getElementById('cust-notes').value
+                    }
+                });
+                portalData = res.data;
+                syncAllViews();
+                document.getElementById('pos-customer-select').value = res.customer.customerId;
+                updateCustomerBalanceBanner();
+                closeNewCustomerModal();
+                e.target.reset();
+                showToast(`Customer ${res.customer.fullName} created!`);
+            } catch (err) {
+                showToast('Error: ' + err.message);
+            }
+        }
+
+        function renderCustomersTable() {
+            const tbody = document.getElementById('customers-table-body');
+            tbody.innerHTML = portalData.customers.map(c => `
+                <tr class="hover:bg-ivory/60">
+                    <td class="p-4">
+                        <div class="font-semibold text-charcoal">${c.fullName}</div>
+                        <div class="text-[10px] text-muted">${c.customerId}</div>
+                    </td>
+                    <td class="p-4">${c.company || '-'}</td>
+                    <td class="p-4 text-muted">${c.phone || ''}<br>${c.email || ''}</td>
+                    <td class="p-4 text-muted">${c.notes || '-'}</td>
+                    <td class="p-4 font-serif font-bold ${c.balanceOwed > 0 ? 'text-amber-700' : 'text-emerald-700'}">
+                        $${Number(c.balanceOwed).toLocaleString()}
+                    </td>
+                    <td class="p-4 text-right">
+                        ${c.balanceOwed > 0 ? `<button onclick="promptCustomerPayment('${c.customerId}', '${c.fullName}', ${c.balanceOwed})" class="bg-charcoal text-ivory px-3 py-1.5 text-[10px] uppercase tracking-wider hover:bg-champagne">Record Payment</button>` : '<span class="text-muted">Settled</span>'}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function promptCustomerPayment(customerId, name, currentBal) {
+            const amtStr = prompt(`Record payment received from ${name} (Current Balance Owed: $${currentBal}):`);
+            if (!amtStr) return;
+            const amount = parseFloat(amtStr);
+            if (!amount || amount <= 0) return;
+
+            try {
+                const res = await apiPost({ action: 'recordCustomerPayment', customerId, amount });
+                portalData = res.data;
+                syncAllViews();
+                showToast(`Recorded $${amount} payment for ${name}`);
+            } catch (err) {
+                showToast('Error: ' + err.message);
+            }
+        }
+
+        /* ---------------- ADMIN: STOCK ASSIGNMENT & ANALYTICS ---------------- */
+
+        function populateMerchantAssignDropdown() {
+            const sel = document.getElementById('assign-merchant-select');
+            if (!sel) return;
+            sel.innerHTML = `<option value="">Return to Main Vault (Clear Assignment)</option>` +
+                portalData.merchants.map(m => `<option value="${m.name}">${m.name} (${m.role})</option>`).join('');
+        }
+
+        async function submitStockAssignment() {
+            const merchantName = document.getElementById('assign-merchant-select').value;
+            const raw = document.getElementById('assign-serials-input').value;
+            const serials = raw.split(/[\s,]+/).map(s => s.trim()).filter(Boolean);
+
+            if (serials.length === 0) {
+                showToast('Enter or scan at least one serial number.');
+                return;
+            }
+
+            const btn = document.getElementById('assign-submit-btn');
+            btn.disabled = true;
+            btn.textContent = 'Updating...';
+
+            try {
+                const res = await apiPost({ action: 'assignStock', serials, merchantName });
+                portalData = res.data;
+                document.getElementById('assign-serials-input').value = '';
+                syncAllViews();
+                let msg = res.message;
+                if (res.notFound && res.notFound.length > 0) {
+                    msg += ` (Not found: ${res.notFound.join(', ')})`;
+                }
+                showToast(msg);
+            } catch (err) {
+                showToast('Error: ' + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Update Stock Assignment';
+            }
+        }
+
+        function renderAllocationsSummary() {
+            const container = document.getElementById('merchant-allocations-summary');
+            if (!container || currentUser.role !== 'Admin') return;
+
+            const active = portalData.inventory.filter(i => i.status.toLowerCase() !== 'sold');
+            const vaultItems = active.filter(i => !i.assignedTo);
+
+            let cards = `
+                <div class="p-4 bg-ivory border border-cream">
+                    <span class="text-[10px] uppercase tracking-widest text-muted">Unassigned</span>
+                    <h4 class="font-serif text-lg font-bold">Main Vault</h4>
+                    <p class="text-xs text-charcoal mt-1">${vaultItems.length} pieces • $${vaultItems.reduce((s, i) => s + i.price, 0).toLocaleString()}</p>
+                </div>
+            `;
+
+            portalData.merchants.forEach(m => {
+                const mItems = active.filter(i => i.assignedTo.toLowerCase() === m.name.toLowerCase());
+                cards += `
+                    <div class="p-4 bg-ivory border border-cream">
+                        <span class="text-[10px] uppercase tracking-widest text-champagne-dark">${m.role}</span>
+                        <h4 class="font-serif text-lg font-bold">${m.name}</h4>
+                        <p class="text-xs text-charcoal mt-1">${mItems.length} pieces • $${mItems.reduce((s, i) => s + i.price, 0).toLocaleString()}</p>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = cards;
+        }
+
+        function renderAnalyticsCharts() {
+            if (currentUser.role !== 'Admin') return;
+
+            const orders = portalData.orders;
+            const totalRev = orders.reduce((s, o) => s + o.finalTotal, 0);
+            const totalOwed = portalData.customers.reduce((s, c) => s + c.balanceOwed, 0);
+            const activeStock = portalData.inventory.filter(i => i.status.toLowerCase() !== 'sold').length;
+
+            document.getElementById('kpi-total-revenue').textContent = `$${totalRev.toLocaleString()}`;
+            document.getElementById('kpi-total-orders').textContent = orders.length;
+            document.getElementById('kpi-total-owed').textContent = `$${totalOwed.toLocaleString()}`;
+            document.getElementById('kpi-active-stock').textContent = activeStock;
+
+            // 1. Sales by Merchant
+            const merchTotals = {};
+            orders.forEach(o => {
+                merchTotals[o.merchantName] = (merchTotals[o.merchantName] || 0) + o.finalTotal;
+            });
+
+            if (chartInstances.merchants) chartInstances.merchants.destroy();
+            chartInstances.merchants = new Chart(document.getElementById('chart-merchants'), {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(merchTotals),
+                    datasets: [{
+                        label: 'Revenue ($)',
+                        data: Object.values(merchTotals),
+                        backgroundColor: '#D4AF37'
+                    }]
+                },
+                options: { plugins: { legend: { display: false } } }
+            });
+
+            // 2. Payment Methods Breakdown
+            const cashSum = orders.reduce((s, o) => s + o.cashPaid, 0);
+            const checkSum = orders.reduce((s, o) => s + o.checkPaid, 0);
+            const bankSum = orders.reduce((s, o) => s + o.bankPaid, 0);
+            const owedSum = orders.reduce((s, o) => s + o.accountOwed, 0);
+
+            if (chartInstances.payments) chartInstances.payments.destroy();
+            chartInstances.payments = new Chart(document.getElementById('chart-payments'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Cash', 'Check', 'Bank Transfer', 'On Account (Owed)'],
+                    datasets: [{
+                        data: [cashSum, checkSum, bankSum, owedSum],
+                        backgroundColor: ['#15803d', '#1d4ed8', '#4338ca', '#b45309']
+                    }]
+                }
+            });
+
+            // 3. Daily Sales Trend
+            const dateMap = {};
+            [...orders].reverse().forEach(o => {
+                const day = (o.date || '').split(' ')[0] || 'Unknown';
+                dateMap[day] = (dateMap[day] || 0) + o.finalTotal;
+            });
+
+            if (chartInstances.timeline) chartInstances.timeline.destroy();
+            chartInstances.timeline = new Chart(document.getElementById('chart-timeline'), {
+                type: 'line',
+                data: {
+                    labels: Object.keys(dateMap),
+                    datasets: [{
+                        label: 'Daily Sales ($)',
+                        data: Object.values(dateMap),
+                        borderColor: '#222222',
+                        backgroundColor: 'rgba(212, 175, 55, 0.2)',
+                        fill: true,
+                        tension: 0.3
+                    }]
+                }
+            });
+        }
+
+        function openReceiptModal(order) {
+            const container = document.getElementById('receipt-content');
+            container.innerHTML = `
+                <div class="grid grid-cols-2 gap-2 bg-ivory p-3 border border-cream">
+                    <div><span class="text-muted">Order ID:</span> <strong>${order.orderId}</strong></div>
+                    <div><span class="text-muted">Date:</span> <strong>${order.date}</strong></div>
+                    <div><span class="text-muted">Customer:</span> <strong>${order.customerName}</strong></div>
+                    <div><span class="text-muted">Representative:</span> <strong>${order.merchantName}</strong></div>
+                </div>
+                <div>
+                    <div class="text-[11px] uppercase tracking-wider text-muted mb-1">Items Purchased</div>
+                    <div class="p-3 border border-cream bg-white font-medium">${order.itemsSummary}</div>
+                </div>
+                <div class="space-y-1.5 border-t border-cream pt-3">
+                    <div class="flex justify-between"><span class="text-muted">Original Value:</span><span>$${Number(order.originalTotal).toLocaleString()}</span></div>
+                    <div class="flex justify-between"><span class="text-muted">Pricing Tier:</span><span>${order.divisionTier}</span></div>
+                    <div class="flex justify-between"><span class="text-muted">Subtotal:</span><span>$${Number(order.subtotal).toLocaleString()}</span></div>
+                    <div class="flex justify-between"><span class="text-muted">VAT (18%):</span><span>$${Number(order.taxAmount).toLocaleString()}</span></div>
+                    <div class="flex justify-between text-base font-serif font-bold pt-2 border-t border-cream">
+                        <span>Total:</span><span>$${Number(order.finalTotal).toLocaleString()}</span>
+                    </div>
+                </div>
+                <div class="bg-ivory p-3 border border-cream space-y-1">
+                    <div class="text-[10px] uppercase tracking-wider text-muted">Payment Breakdown</div>
+                    ${order.cashPaid > 0 ? `<div class="flex justify-between"><span>Cash Paid:</span><span>$${Number(order.cashPaid).toLocaleString()}</span></div>` : ''}
+                    ${order.checkPaid > 0 ? `<div class="flex justify-between"><span>Check Paid:</span><span>$${Number(order.checkPaid).toLocaleString()}</span></div>` : ''}
+                    ${order.bankPaid > 0 ? `<div class="flex justify-between"><span>Bank Transfer:</span><span>$${Number(order.bankPaid).toLocaleString()}</span></div>` : ''}
+                    ${order.accountOwed > 0 ? `<div class="flex justify-between text-amber-800 font-semibold"><span>Balance Placed On Account:</span><span>$${Number(order.accountOwed).toLocaleString()}</span></div>` : ''}
+                    ${order.paymentNotes ? `<div class="text-muted pt-1">Notes: ${order.paymentNotes}</div>` : ''}
+                </div>
+            `;
+            document.getElementById('receipt-modal').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
