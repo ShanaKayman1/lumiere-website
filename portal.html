@@ -3,7 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LUMIÈRE | Merchant & Admin Portal</title>
+    <title>LUMIÈRE | Merchant &amp; Admin Portal</title>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#222222">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="LUMIÈRE POS">
+    <link rel="apple-touch-icon" href="https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=192&q=80">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
@@ -128,11 +134,16 @@
                 <div class="lg:col-span-7 space-y-6">
                     <!-- Bluetooth Scanner Box -->
                     <div class="bg-white p-6 border border-cream shadow-sm space-y-3">
-                        <div class="flex items-center justify-between">
+                        <div class="flex items-center justify-between gap-2 flex-wrap">
                             <label for="scanner-input" class="text-xs uppercase tracking-widest font-semibold text-charcoal flex items-center gap-2">
                                 <i class="fas fa-barcode text-champagne-dark text-base"></i> Scan or Enter Serial # (8...)
                             </label>
-                            <span class="text-[11px] text-emerald-700 bg-emerald-50 px-2 py-0.5 font-medium">Scanner Ready</span>
+                            <div class="flex items-center gap-2">
+                                <button type="button" onclick="toggleScannerKeyboard()" class="text-[11px] text-muted hover:text-charcoal border border-cream px-2 py-0.5">
+                                    <i class="far fa-keyboard mr-1"></i> Toggle Keyboard
+                                </button>
+                                <span class="text-[11px] text-emerald-700 bg-emerald-50 px-2 py-0.5 font-medium">Scanner Ready</span>
+                            </div>
                         </div>
                         <form onsubmit="handleScanSubmit(event)" class="flex gap-2">
                             <input type="text" id="scanner-input" placeholder="Scan tag or type 80446..." autocomplete="off"
@@ -141,7 +152,7 @@
                                 Add
                             </button>
                         </form>
-                        <p class="text-[11px] text-muted">Keep cursor here for Bluetooth barcode scanners, or click any item in your stock list to add it.</p>
+                        <p class="text-[11px] text-muted">Pair a Bluetooth scanner in HID keyboard mode to scan 8... tags directly into this field, or click any item in your stock list.</p>
                     </div>
 
                     <!-- Active Order Items -->
@@ -561,6 +572,7 @@
 
     <script src="config.js"></script>
     <script>
+        const STORAGE_PIN_KEY = 'lumiere_portal_pin';
         let sessionPassword = "";
         let currentUser = null;
         let portalData = { inventory: [], myStock: [], merchants: [], customers: [], orders: [] };
@@ -568,6 +580,15 @@
         let activeDivision = 1;
         let chartInstances = {};
         let activeReceiptOrder = null;
+        let scannerReadonly = false;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedPin = localStorage.getItem(STORAGE_PIN_KEY);
+            if (savedPin) {
+                document.getElementById('login-pin').value = savedPin;
+                authenticateWithPin(savedPin, true);
+            }
+        });
 
         function getApiUrl() {
             return (window.LUMIERE_CONFIG && window.LUMIERE_CONFIG.apiUrl) || "";
@@ -596,11 +617,16 @@
         async function handleLogin(e) {
             e.preventDefault();
             const pin = document.getElementById('login-pin').value.trim();
+            await authenticateWithPin(pin, false);
+        }
+
+        async function authenticateWithPin(pin, isAutoLogin) {
             const errBox = document.getElementById('login-error');
             const btn = document.getElementById('login-btn');
 
+            if (!pin) return;
             errBox.classList.add('hidden');
-            btn.textContent = 'Verifying...';
+            btn.textContent = isAutoLogin ? 'Restoring Session...' : 'Verifying...';
             btn.disabled = true;
 
             try {
@@ -608,6 +634,7 @@
                 const res = await apiPost({ action: 'login' });
                 currentUser = res.user;
                 portalData = res.data;
+                localStorage.setItem(STORAGE_PIN_KEY, pin);
 
                 document.getElementById('login-screen').classList.add('hidden');
                 document.getElementById('portal-app').classList.remove('hidden');
@@ -628,8 +655,13 @@
                 switchTab('pos');
             } catch (err) {
                 sessionPassword = "";
-                errBox.textContent = err.message;
-                errBox.classList.remove('hidden');
+                if (isAutoLogin) {
+                    localStorage.removeItem(STORAGE_PIN_KEY);
+                    document.getElementById('login-pin').value = '';
+                } else {
+                    errBox.textContent = err.message;
+                    errBox.classList.remove('hidden');
+                }
             } finally {
                 btn.textContent = 'Access Portal';
                 btn.disabled = false;
@@ -637,6 +669,7 @@
         }
 
         function logout() {
+            localStorage.removeItem(STORAGE_PIN_KEY);
             sessionPassword = "";
             currentUser = null;
             cart = [];
@@ -701,6 +734,15 @@
         }
 
         /* ---------------- POS & BLUETOOTH SCANNER ---------------- */
+
+        function toggleScannerKeyboard() {
+            const input = document.getElementById('scanner-input');
+            scannerReadonly = !scannerReadonly;
+            input.readOnly = scannerReadonly;
+            input.blur();
+            setTimeout(() => input.focus(), 50);
+            showToast(scannerReadonly ? 'On-screen keyboard suppressed for scanner' : 'On-screen keyboard enabled');
+        }
 
         function handleScanSubmit(e) {
             e.preventDefault();
