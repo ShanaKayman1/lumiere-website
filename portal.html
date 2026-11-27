@@ -88,20 +88,23 @@
                 </div>
             </div>
 
-            <!-- Navigation Tabs -->
+            <!-- Role-Aware Navigation Tabs -->
             <div class="bg-charcoal/95 border-t border-gray-800 overflow-x-auto">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 flex space-x-2">
                     <button onclick="switchTab('pos')" data-tab="pos" class="tab-btn px-4 py-3 text-xs uppercase tracking-widest font-medium border-b-2 border-champagne text-champagne whitespace-nowrap">
-                        <i class="fas fa-barcode mr-1.5"></i> POS &amp; New Order
+                        <i class="fas fa-barcode mr-1.5"></i> POS
                     </button>
-                    <button onclick="switchTab('mystock')" data-tab="mystock" class="tab-btn px-4 py-3 text-xs uppercase tracking-widest font-medium border-b-2 border-transparent text-gray-400 hover:text-white whitespace-nowrap">
-                        <i class="far fa-gem mr-1.5"></i> Stock (<span id="stock-tab-count">0</span>)
+                    <button id="mystock-tab-btn" onclick="switchTab('mystock')" data-tab="mystock" class="tab-btn px-4 py-3 text-xs uppercase tracking-widest font-medium border-b-2 border-transparent text-gray-400 hover:text-white whitespace-nowrap">
+                        <i class="far fa-gem mr-1.5"></i> My Stock (<span id="mystock-tab-count">0</span>)
+                    </button>
+                    <button id="allinv-tab-btn" onclick="switchTab('allinv')" data-tab="allinv" class="tab-btn px-4 py-3 text-xs uppercase tracking-widest font-medium border-b-2 border-transparent text-gray-400 hover:text-white whitespace-nowrap">
+                        <i class="fas fa-boxes mr-1.5"></i> All Inventory (<span id="allinv-tab-count">0</span>)
                     </button>
                     <button onclick="switchTab('orders')" data-tab="orders" class="tab-btn px-4 py-3 text-xs uppercase tracking-widest font-medium border-b-2 border-transparent text-gray-400 hover:text-white whitespace-nowrap">
-                        <i class="fas fa-receipt mr-1.5"></i> Orders
+                        <i class="fas fa-receipt mr-1.5"></i> <span id="orders-tab-label">My Orders</span>
                     </button>
                     <button onclick="switchTab('customers')" data-tab="customers" class="tab-btn px-4 py-3 text-xs uppercase tracking-widest font-medium border-b-2 border-transparent text-gray-400 hover:text-white whitespace-nowrap">
-                        <i class="fas fa-users mr-1.5"></i> Customers
+                        <i class="fas fa-users mr-1.5"></i> <span id="customers-tab-label">My Customers</span>
                     </button>
                     <button id="admin-assign-tab-btn" onclick="switchTab('assign')" data-tab="assign" class="hidden tab-btn px-4 py-3 text-xs uppercase tracking-widest font-medium border-b-2 border-transparent text-gray-400 hover:text-white whitespace-nowrap">
                         <i class="fas fa-exchange-alt mr-1.5"></i> Assign Stock
@@ -138,7 +141,7 @@
                                 Add
                             </button>
                         </form>
-                        <p class="text-[11px] text-muted">Tip: Keep cursor here for Bluetooth barcode scanners, or click any item in your Stock tab to add it.</p>
+                        <p class="text-[11px] text-muted">Keep cursor here for Bluetooth barcode scanners, or click any item in your stock list to add it.</p>
                     </div>
 
                     <!-- Active Order Items -->
@@ -200,7 +203,7 @@
                         <div class="flex items-center justify-between pt-3 border-t border-cream">
                             <div>
                                 <span class="text-sm font-medium text-charcoal block">Add 18% VAT Tax</span>
-                                <span class="text-[11px] text-muted">Toggle on for Israeli tax invoices</span>
+                                <span class="text-[11px] text-muted">Toggle on for VAT / Tax Invoice</span>
                             </div>
                             <label class="relative inline-flex items-center cursor-pointer">
                                 <input type="checkbox" id="tax-toggle" onchange="recalculateTotals()" class="sr-only peer">
@@ -271,29 +274,21 @@
 
                         <button type="button" id="complete-order-btn" onclick="submitOrder()"
                                 class="w-full bg-champagne text-white py-4 text-xs tracking-[0.2em] uppercase font-bold hover:bg-champagne-dark transition shadow-md">
-                            Complete Sale &amp; Print Receipt
+                            Complete Sale &amp; Open Receipt
                         </button>
                     </div>
                 </div>
             </div>
 
-            <!-- TAB 2: STOCK VIEW (Merchant's Assigned Items or Admin's Full Vault) -->
+            <!-- TAB 2A: MY STOCK (Merchant Assigned Items) -->
             <div id="view-mystock" class="tab-view hidden space-y-6">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 border border-cream">
                     <div>
-                        <h2 id="stock-view-title" class="font-serif text-2xl">Available Inventory</h2>
-                        <p id="stock-view-subtitle" class="text-xs text-muted">Click any item to add it directly to your POS order.</p>
+                        <h2 class="font-serif text-2xl">My Assigned Stock</h2>
+                        <p class="text-xs text-muted">Items assigned to your account. Click + POS to add to an order.</p>
                     </div>
-                    <div class="flex gap-2">
-                        <input type="text" id="stock-search" oninput="renderStockTable()" placeholder="Search serial #, model, details..."
-                               class="px-4 py-2 bg-ivory border border-cream text-xs w-64 focus:outline-none focus:border-champagne">
-                        <select id="stock-status-filter" onchange="renderStockTable()" class="hidden px-3 py-2 bg-ivory border border-cream text-xs">
-                            <option value="all">All Statuses</option>
-                            <option value="vault">In Main Vault</option>
-                            <option value="assigned">Assigned to Merchants</option>
-                            <option value="sold">Sold</option>
-                        </select>
-                    </div>
+                    <input type="text" id="stock-search" oninput="renderStockTable()" placeholder="Search serial #, model, details..."
+                           class="px-4 py-2 bg-ivory border border-cream text-xs w-64 focus:outline-none focus:border-champagne">
                 </div>
 
                 <div class="bg-white border border-cream overflow-x-auto shadow-sm">
@@ -314,11 +309,47 @@
                 </div>
             </div>
 
+            <!-- TAB 2B: ALL INVENTORY (Full Catalog Stock View) -->
+            <div id="view-allinv" class="tab-view hidden space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 border border-cream">
+                    <div>
+                        <h2 class="font-serif text-2xl">All Inventory</h2>
+                        <p class="text-xs text-muted">Complete Lumière inventory overview.</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <input type="text" id="allinv-search" oninput="renderAllInventoryTable()" placeholder="Search serial #, model, details..."
+                               class="px-4 py-2 bg-ivory border border-cream text-xs w-64 focus:outline-none focus:border-champagne">
+                        <select id="allinv-status-filter" onchange="renderAllInventoryTable()" class="hidden px-3 py-2 bg-ivory border border-cream text-xs">
+                            <option value="all">All Statuses</option>
+                            <option value="vault">Main Vault</option>
+                            <option value="assigned">Assigned</option>
+                            <option value="sold">Sold</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="bg-white border border-cream overflow-x-auto shadow-sm">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-cream/70 uppercase tracking-wider text-muted border-b border-cream">
+                            <tr>
+                                <th class="p-4">Photo</th>
+                                <th class="p-4">Serial # (ID)</th>
+                                <th class="p-4">Model &amp; Details</th>
+                                <th class="p-4">Specs</th>
+                                <th class="p-4">Price</th>
+                                <th class="p-4">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="allinv-table-body" class="divide-y divide-cream"></tbody>
+                    </table>
+                </div>
+            </div>
+
             <!-- TAB 3: ORDERS LEDGER -->
             <div id="view-orders" class="tab-view hidden space-y-6">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 border border-cream">
                     <div>
-                        <h2 class="font-serif text-2xl">Orders History</h2>
+                        <h2 id="orders-view-title" class="font-serif text-2xl">My Orders</h2>
                         <p class="text-xs text-muted">Live sync with the Orders tab in Google Sheets.</p>
                     </div>
                     <input type="text" id="orders-search" oninput="renderOrdersTable()" placeholder="Search order ID, customer, serial #..."
@@ -348,7 +379,7 @@
             <div id="view-customers" class="tab-view hidden space-y-6">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 border border-cream">
                     <div>
-                        <h2 class="font-serif text-2xl">Customers &amp; Balances Owed</h2>
+                        <h2 id="customers-view-title" class="font-serif text-2xl">My Customers</h2>
                         <p class="text-xs text-muted">Track client contact info and open Account balances.</p>
                     </div>
                     <button onclick="openNewCustomerModal()" class="bg-charcoal text-ivory px-5 py-2.5 text-xs uppercase tracking-widest hover:bg-champagne transition">
@@ -373,7 +404,7 @@
                 </div>
             </div>
 
-            <!-- TAB 5: ADMIN ASSIGN STOCK TO MERCHANTS -->
+            <!-- TAB 5: ADMIN ONLY — ASSIGN STOCK TO MERCHANTS -->
             <div id="view-assign" class="tab-view hidden space-y-6">
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
                     <div class="lg:col-span-5 bg-white p-6 border border-cream shadow-sm space-y-5">
@@ -408,9 +439,8 @@
                 </div>
             </div>
 
-            <!-- TAB 6: ADMIN ANALYTICS & SALES CHARTS -->
+            <!-- TAB 6: ADMIN ONLY — ANALYTICS & SALES CHARTS -->
             <div id="view-analytics" class="tab-view hidden space-y-8">
-                <!-- KPI Summary Cards -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
                     <div class="bg-white p-6 border border-cream shadow-sm">
                         <span class="text-[11px] uppercase tracking-widest text-muted">Total Sales Revenue</span>
@@ -430,7 +460,6 @@
                     </div>
                 </div>
 
-                <!-- Charts Grid -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     <div class="bg-white p-6 border border-cream shadow-sm">
                         <h3 class="font-serif text-lg mb-4">Sales by Merchant ($)</h3>
@@ -485,15 +514,41 @@
         </div>
     </div>
 
-    <!-- PRINTABLE RECEIPT MODAL -->
+    <!-- PRINTABLE & EMAILABLE RECEIPT / TAX INVOICE MODAL -->
     <div id="receipt-modal" class="fixed inset-0 z-50 bg-black/60 hidden flex items-center justify-center p-4">
-        <div class="bg-white max-w-lg w-full p-8 space-y-6 shadow-2xl max-h-[90vh] overflow-y-auto">
+        <div class="bg-white max-w-lg w-full p-8 space-y-5 shadow-2xl max-h-[92vh] overflow-y-auto">
             <div class="text-center border-b border-cream pb-4 space-y-1">
+                <div class="text-champagne text-lg"><i class="far fa-gem"></i></div>
                 <h2 class="font-serif text-2xl tracking-widest font-bold">LUMIÈRE</h2>
-                <p class="text-[11px] uppercase tracking-widest text-muted">Fine Lab-Grown Diamond Jewelry • Official Sales Receipt</p>
+                <p id="receipt-doc-subtitle" class="text-[11px] uppercase tracking-widest text-muted">Fine Lab-Grown Diamond Jewelry • Official Receipt</p>
             </div>
+
             <div id="receipt-content" class="space-y-4 text-xs"></div>
-            <div class="flex gap-3 pt-4 border-t border-cream no-print">
+
+            <!-- Send PDF via Email Box -->
+            <div class="bg-ivory p-4 border border-cream space-y-3 no-print">
+                <div class="flex items-center justify-between">
+                    <span class="text-[11px] uppercase tracking-wider font-semibold text-charcoal">
+                        <i class="far fa-envelope mr-1 text-champagne-dark"></i> Email Branded PDF
+                    </span>
+                    <select id="receipt-doc-type" class="bg-white border border-cream px-2.5 py-1 text-[11px]">
+                        <option value="auto">Auto (Invoice if VAT On)</option>
+                        <option value="invoice">Tax Invoice (חשבונית מס)</option>
+                        <option value="receipt">Official Receipt</option>
+                    </select>
+                </div>
+                <div class="flex gap-2">
+                    <input type="email" id="receipt-email-input" placeholder="customer@email.com"
+                           class="flex-1 px-3 py-2.5 bg-white border border-cream text-xs focus:outline-none focus:border-champagne">
+                    <button type="button" id="send-receipt-email-btn" onclick="sendDocumentEmail()"
+                            class="bg-champagne text-white px-4 py-2.5 text-[11px] uppercase tracking-wider font-semibold hover:bg-champagne-dark transition whitespace-nowrap">
+                        Send PDF
+                    </button>
+                </div>
+                <div id="receipt-drive-link" class="hidden text-[11px] text-emerald-700"></div>
+            </div>
+
+            <div class="flex gap-3 pt-2 border-t border-cream no-print">
                 <button onclick="window.print()" class="flex-1 bg-charcoal text-ivory py-3 text-xs uppercase tracking-widest hover:bg-champagne transition">
                     <i class="fas fa-print mr-1.5"></i> Print / Save PDF
                 </button>
@@ -508,10 +563,11 @@
     <script>
         let sessionPassword = "";
         let currentUser = null;
-        let portalData = { inventory: [], merchants: [], customers: [], orders: [] };
+        let portalData = { inventory: [], myStock: [], merchants: [], customers: [], orders: [] };
         let cart = [];
         let activeDivision = 1;
         let chartInstances = {};
+        let activeReceiptOrder = null;
 
         function getApiUrl() {
             return (window.LUMIERE_CONFIG && window.LUMIERE_CONFIG.apiUrl) || "";
@@ -557,15 +613,19 @@
                 document.getElementById('portal-app').classList.remove('hidden');
                 document.getElementById('user-badge').textContent = `${currentUser.name} • ${currentUser.role}`;
 
-                if (currentUser.role === 'Admin') {
-                    document.getElementById('admin-assign-tab-btn').classList.remove('hidden');
-                    document.getElementById('admin-analytics-tab-btn').classList.remove('hidden');
-                    document.getElementById('stock-status-filter').classList.remove('hidden');
-                    document.getElementById('stock-view-title').textContent = 'Master Vault & Merchant Stock';
-                }
+                const isAdmin = currentUser.role === 'Admin';
+                document.getElementById('admin-assign-tab-btn').classList.toggle('hidden', !isAdmin);
+                document.getElementById('admin-analytics-tab-btn').classList.toggle('hidden', !isAdmin);
+                document.getElementById('mystock-tab-btn').classList.toggle('hidden', isAdmin);
+                document.getElementById('allinv-status-filter').classList.toggle('hidden', !isAdmin);
+
+                document.getElementById('orders-tab-label').textContent = isAdmin ? 'All Orders' : 'My Orders';
+                document.getElementById('orders-view-title').textContent = isAdmin ? 'All Orders' : 'My Orders';
+                document.getElementById('customers-tab-label').textContent = isAdmin ? 'All Customers' : 'My Customers';
+                document.getElementById('customers-view-title').textContent = isAdmin ? 'All Customers' : 'My Customers';
 
                 syncAllViews();
-                document.getElementById('scanner-input').focus();
+                switchTab('pos');
             } catch (err) {
                 sessionPassword = "";
                 errBox.textContent = err.message;
@@ -601,6 +661,11 @@
         }
 
         function switchTab(tabName) {
+            if (!currentUser) return;
+            if (currentUser.role !== 'Admin' && (tabName === 'assign' || tabName === 'analytics')) {
+                tabName = 'pos';
+            }
+
             document.querySelectorAll('.tab-view').forEach(el => el.classList.add('hidden'));
             document.getElementById('view-' + tabName).classList.remove('hidden');
 
@@ -619,13 +684,17 @@
         }
 
         function syncAllViews() {
-            const activeItems = portalData.inventory.filter(i => i.status.toLowerCase() !== 'sold');
-            document.getElementById('stock-tab-count').textContent = activeItems.length;
+            const myList = portalData.myStock || [];
+            const allActive = (portalData.inventory || []).filter(i => (i.status || '').toLowerCase() !== 'sold');
+
+            document.getElementById('mystock-tab-count').textContent = myList.length;
+            document.getElementById('allinv-tab-count').textContent = allActive.length;
 
             populateCustomerDropdown();
             populateMerchantAssignDropdown();
             renderCart();
             renderStockTable();
+            renderAllInventoryTable();
             renderOrdersTable();
             renderCustomersTable();
             renderAllocationsSummary();
@@ -650,9 +719,13 @@
                 return;
             }
 
-            const item = portalData.inventory.find(i => i.id === cleanSerial && i.status.toLowerCase() !== 'sold');
+            const pool = (currentUser && currentUser.role === 'Admin')
+                ? (portalData.inventory || []).filter(i => (i.status || '').toLowerCase() !== 'sold')
+                : (portalData.myStock || []);
+
+            const item = pool.find(i => i.id === cleanSerial);
             if (!item) {
-                showToast(`Serial #${cleanSerial} not found in your available stock.`);
+                showToast(`Serial #${cleanSerial} is not in your available stock.`);
                 return;
             }
 
@@ -683,12 +756,7 @@
                 }
             });
 
-            const customWrap = document.getElementById('custom-div-wrapper');
-            if (div === 'custom') {
-                customWrap.classList.remove('hidden');
-            } else {
-                customWrap.classList.add('hidden');
-            }
+            document.getElementById('custom-div-wrapper').classList.toggle('hidden', div !== 'custom');
             recalculateTotals();
         }
 
@@ -758,7 +826,6 @@
             document.getElementById('summary-tax').textContent = `$${taxAmount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
             document.getElementById('summary-final').textContent = `$${finalTotal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
 
-            // Update item row prices without full DOM rebuild if needed
             if (cart.length > 0 && activeDivision === 'custom') {
                 const fallback = (window.LUMIERE_CONFIG && window.LUMIERE_CONFIG.fallbackImage) || '';
                 document.getElementById('cart-items-container').innerHTML = cart.map(item => {
@@ -811,11 +878,7 @@
 
             const el = document.getElementById('unallocated-balance');
             el.textContent = `$${remaining.toFixed(2)}`;
-            if (Math.abs(remaining) < 0.05) {
-                el.className = 'font-bold text-emerald-700';
-            } else {
-                el.className = 'font-bold text-red-600';
-            }
+            el.className = Math.abs(remaining) < 0.05 ? 'font-bold text-emerald-700' : 'font-bold text-red-600';
         }
 
         function fillRemainingTo(field) {
@@ -843,7 +906,6 @@
             const account = parseFloat(document.getElementById('pay-account').value) || 0;
             const allocated = cash + check + bank + account;
 
-            // If user didn't enter any split payment, default full total to Cash
             let finalCash = cash;
             if (allocated === 0 && totals.finalTotal > 0) {
                 finalCash = Number(totals.finalTotal.toFixed(2));
@@ -864,12 +926,13 @@
             btn.textContent = 'Recording Order...';
 
             try {
+                const cartSnapshot = [...cart];
                 const res = await apiPost({
                     action: 'createOrder',
                     order: {
                         customerId: custObj ? custObj.customerId : '',
                         customerName: custObj ? custObj.fullName : 'Walk-In Client',
-                        items: cart,
+                        items: cartSnapshot,
                         originalTotal: Number(totals.originalTotal.toFixed(2)),
                         divisionTier: totals.divisor === 1 ? 'Original' : `÷ ${totals.divisor}`,
                         subtotal: Number(totals.subtotal.toFixed(2)),
@@ -888,13 +951,13 @@
                 cart = [];
                 ['pay-cash', 'pay-check', 'pay-bank', 'pay-account', 'pay-notes'].forEach(id => document.getElementById(id).value = '');
                 syncAllViews();
-                openReceiptModal(res.order);
+                openReceiptModal({ ...res.order, items: cartSnapshot });
                 showToast(`Order ${res.order.orderId} saved!`);
             } catch (err) {
                 showToast('Order Error: ' + err.message);
             } finally {
                 btn.disabled = false;
-                btn.textContent = 'Complete Sale & Print Receipt';
+                btn.textContent = 'Complete Sale & Open Receipt';
             }
         }
 
@@ -902,11 +965,43 @@
 
         function renderStockTable() {
             const tbody = document.getElementById('stock-table-body');
+            if (!tbody) return;
             const query = (document.getElementById('stock-search').value || '').toLowerCase();
-            const statusFilter = document.getElementById('stock-status-filter').value;
+            const fallback = (window.LUMIERE_CONFIG && window.LUMIERE_CONFIG.fallbackImage) || '';
+            const list = (portalData.myStock || []).filter(item =>
+                !query ||
+                item.id.toLowerCase().includes(query) ||
+                item.modelNumber.toLowerCase().includes(query) ||
+                item.details.toLowerCase().includes(query) ||
+                item.category.toLowerCase().includes(query)
+            );
+
+            tbody.innerHTML = list.map(item => `
+                <tr class="hover:bg-ivory/60">
+                    <td class="p-4"><img src="${item.image || fallback}" class="w-12 h-12 object-contain bg-cream p-1" onerror="this.src='${fallback}'"></td>
+                    <td class="p-4 font-mono font-bold text-charcoal">#${item.id}</td>
+                    <td class="p-4">
+                        <div class="font-semibold text-charcoal">${item.modelNumber}</div>
+                        <div class="text-muted line-clamp-1">${item.details || item.category}</div>
+                    </td>
+                    <td class="p-4 text-muted">${item.caratWeight || '-'} CT • ${item.color || '-'} / ${item.clarity || '-'} • ${item.goldColor || item.metal}</td>
+                    <td class="p-4 font-serif font-semibold">$${Number(item.price).toLocaleString()}</td>
+                    <td class="p-4"><span class="px-2.5 py-1 text-[10px] uppercase font-semibold bg-amber-100 text-amber-900">Assigned to You</span></td>
+                    <td class="p-4 text-right">
+                        <button onclick="addSerialToCart('${item.id}'); switchTab('pos');" class="bg-charcoal text-ivory px-3 py-1.5 text-[10px] uppercase tracking-wider hover:bg-champagne transition">+ POS</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderAllInventoryTable() {
+            const tbody = document.getElementById('allinv-table-body');
+            if (!tbody) return;
+            const query = (document.getElementById('allinv-search').value || '').toLowerCase();
+            const statusFilter = document.getElementById('allinv-status-filter').value;
             const fallback = (window.LUMIERE_CONFIG && window.LUMIERE_CONFIG.fallbackImage) || '';
 
-            const list = portalData.inventory.filter(item => {
+            const list = (portalData.inventory || []).filter(item => {
                 const st = (item.status || '').toLowerCase();
                 if (currentUser.role !== 'Admin' && st === 'sold') return false;
 
@@ -929,8 +1024,6 @@
                 const badgeClass = isSold
                     ? 'bg-red-100 text-red-800'
                     : (item.status ? 'bg-amber-100 text-amber-900' : 'bg-emerald-100 text-emerald-800');
-                const badgeText = item.status || 'Main Vault';
-
                 return `
                     <tr class="hover:bg-ivory/60">
                         <td class="p-4"><img src="${item.image || fallback}" class="w-12 h-12 object-contain bg-cream p-1" onerror="this.src='${fallback}'"></td>
@@ -941,10 +1034,7 @@
                         </td>
                         <td class="p-4 text-muted">${item.caratWeight || '-'} CT • ${item.color || '-'} / ${item.clarity || '-'} • ${item.goldColor || item.metal}</td>
                         <td class="p-4 font-serif font-semibold">$${Number(item.price).toLocaleString()}</td>
-                        <td class="p-4"><span class="px-2.5 py-1 text-[10px] uppercase font-semibold ${badgeClass}">${badgeText}</span></td>
-                        <td class="p-4 text-right">
-                            ${!isSold ? `<button onclick="addSerialToCart('${item.id}'); switchTab('pos');" class="bg-charcoal text-ivory px-3 py-1.5 text-[10px] uppercase tracking-wider hover:bg-champagne transition">+ POS</button>` : '-'}
-                        </td>
+                        <td class="p-4"><span class="px-2.5 py-1 text-[10px] uppercase font-semibold ${badgeClass}">${item.status || 'Available'}</span></td>
                     </tr>
                 `;
             }).join('');
@@ -954,7 +1044,7 @@
             const tbody = document.getElementById('orders-table-body');
             const q = (document.getElementById('orders-search').value || '').toLowerCase();
 
-            const filtered = portalData.orders.filter(o =>
+            const filtered = (portalData.orders || []).filter(o =>
                 !q ||
                 o.orderId.toLowerCase().includes(q) ||
                 o.customerName.toLowerCase().includes(q) ||
@@ -983,7 +1073,7 @@
                         <td class="p-4 text-[11px] space-y-0.5">${splits.join('<br>') || '-'}</td>
                         <td class="p-4 text-right">
                             <button onclick='openReceiptModal(${JSON.stringify(o)})' class="border border-cream px-3 py-1.5 text-[10px] uppercase tracking-wider hover:border-champagne">
-                                View
+                                View / Email
                             </button>
                         </td>
                     </tr>
@@ -995,7 +1085,7 @@
             const sel = document.getElementById('pos-customer-select');
             const currentVal = sel.value;
             sel.innerHTML = `<option value="">-- Walk-In Client --</option>` +
-                portalData.customers.map(c =>
+                (portalData.customers || []).map(c =>
                     `<option value="${c.customerId}">${c.fullName}${c.company ? ' (' + c.company + ')' : ''}${c.balanceOwed > 0 ? ' — Owes $' + c.balanceOwed : ''}</option>`
                 ).join('');
             sel.value = currentVal;
@@ -1005,7 +1095,7 @@
         function updateCustomerBalanceBanner() {
             const custId = document.getElementById('pos-customer-select').value;
             const banner = document.getElementById('selected-customer-balance');
-            const cust = portalData.customers.find(c => c.customerId === custId);
+            const cust = (portalData.customers || []).find(c => c.customerId === custId);
             if (cust && cust.balanceOwed > 0) {
                 document.getElementById('selected-customer-balance-amt').textContent = `$${Number(cust.balanceOwed).toLocaleString()}`;
                 banner.classList.remove('hidden');
@@ -1049,7 +1139,7 @@
 
         function renderCustomersTable() {
             const tbody = document.getElementById('customers-table-body');
-            tbody.innerHTML = portalData.customers.map(c => `
+            tbody.innerHTML = (portalData.customers || []).map(c => `
                 <tr class="hover:bg-ivory/60">
                     <td class="p-4">
                         <div class="font-semibold text-charcoal">${c.fullName}</div>
@@ -1084,16 +1174,17 @@
             }
         }
 
-        /* ---------------- ADMIN: STOCK ASSIGNMENT & ANALYTICS ---------------- */
+        /* ---------------- ADMIN ONLY: STOCK ASSIGNMENT & ANALYTICS ---------------- */
 
         function populateMerchantAssignDropdown() {
             const sel = document.getElementById('assign-merchant-select');
             if (!sel) return;
             sel.innerHTML = `<option value="">Return to Main Vault (Clear Assignment)</option>` +
-                portalData.merchants.map(m => `<option value="${m.name}">${m.name} (${m.role})</option>`).join('');
+                (portalData.merchants || []).map(m => `<option value="${m.name}">${m.name} (${m.role})</option>`).join('');
         }
 
         async function submitStockAssignment() {
+            if (!currentUser || currentUser.role !== 'Admin') return;
             const merchantName = document.getElementById('assign-merchant-select').value;
             const raw = document.getElementById('assign-serials-input').value;
             const serials = raw.split(/[\s,]+/).map(s => s.trim()).filter(Boolean);
@@ -1127,9 +1218,9 @@
 
         function renderAllocationsSummary() {
             const container = document.getElementById('merchant-allocations-summary');
-            if (!container || currentUser.role !== 'Admin') return;
+            if (!container || !currentUser || currentUser.role !== 'Admin') return;
 
-            const active = portalData.inventory.filter(i => i.status.toLowerCase() !== 'sold');
+            const active = (portalData.inventory || []).filter(i => (i.status || '').toLowerCase() !== 'sold');
             const vaultItems = active.filter(i => !i.assignedTo);
 
             let cards = `
@@ -1140,7 +1231,7 @@
                 </div>
             `;
 
-            portalData.merchants.forEach(m => {
+            (portalData.merchants || []).forEach(m => {
                 const mItems = active.filter(i => i.assignedTo.toLowerCase() === m.name.toLowerCase());
                 cards += `
                     <div class="p-4 bg-ivory border border-cream">
@@ -1155,19 +1246,18 @@
         }
 
         function renderAnalyticsCharts() {
-            if (currentUser.role !== 'Admin') return;
+            if (!currentUser || currentUser.role !== 'Admin') return;
 
-            const orders = portalData.orders;
+            const orders = portalData.orders || [];
             const totalRev = orders.reduce((s, o) => s + o.finalTotal, 0);
-            const totalOwed = portalData.customers.reduce((s, c) => s + c.balanceOwed, 0);
-            const activeStock = portalData.inventory.filter(i => i.status.toLowerCase() !== 'sold').length;
+            const totalOwed = (portalData.customers || []).reduce((s, c) => s + c.balanceOwed, 0);
+            const activeStock = (portalData.inventory || []).filter(i => (i.status || '').toLowerCase() !== 'sold').length;
 
             document.getElementById('kpi-total-revenue').textContent = `$${totalRev.toLocaleString()}`;
             document.getElementById('kpi-total-orders').textContent = orders.length;
             document.getElementById('kpi-total-owed').textContent = `$${totalOwed.toLocaleString()}`;
             document.getElementById('kpi-active-stock').textContent = activeStock;
 
-            // 1. Sales by Merchant
             const merchTotals = {};
             orders.forEach(o => {
                 merchTotals[o.merchantName] = (merchTotals[o.merchantName] || 0) + o.finalTotal;
@@ -1187,7 +1277,6 @@
                 options: { plugins: { legend: { display: false } } }
             });
 
-            // 2. Payment Methods Breakdown
             const cashSum = orders.reduce((s, o) => s + o.cashPaid, 0);
             const checkSum = orders.reduce((s, o) => s + o.checkPaid, 0);
             const bankSum = orders.reduce((s, o) => s + o.bankPaid, 0);
@@ -1205,7 +1294,6 @@
                 }
             });
 
-            // 3. Daily Sales Trend
             const dateMap = {};
             [...orders].reverse().forEach(o => {
                 const day = (o.date || '').split(' ')[0] || 'Unknown';
@@ -1229,11 +1317,34 @@
             });
         }
 
+        /* ---------------- RECEIPT / TAX INVOICE & EMAIL ---------------- */
+
         function openReceiptModal(order) {
+            activeReceiptOrder = order;
+            const isTax = order.taxEnabled === 'Yes' || order.taxEnabled === true;
+            document.getElementById('receipt-doc-subtitle').textContent = isTax
+                ? 'Fine Lab-Grown Diamond Jewelry • Official Tax Invoice'
+                : 'Fine Lab-Grown Diamond Jewelry • Official Sales Receipt';
+
+            const cust = (portalData.customers || []).find(c =>
+                (order.customerId && c.customerId === order.customerId) ||
+                (order.customerName && c.fullName === order.customerName)
+            );
+            document.getElementById('receipt-email-input').value = (cust && cust.email) ? cust.email : '';
+            document.getElementById('receipt-doc-type').value = 'auto';
+
+            const linkBox = document.getElementById('receipt-drive-link');
+            if (order.pdfUrl) {
+                linkBox.innerHTML = `<i class="fas fa-file-pdf mr-1"></i> <a href="${order.pdfUrl}" target="_blank" class="underline font-semibold">Open Saved PDF in Drive</a>`;
+                linkBox.classList.remove('hidden');
+            } else {
+                linkBox.classList.add('hidden');
+            }
+
             const container = document.getElementById('receipt-content');
             container.innerHTML = `
                 <div class="grid grid-cols-2 gap-2 bg-ivory p-3 border border-cream">
-                    <div><span class="text-muted">Order ID:</span> <strong>${order.orderId}</strong></div>
+                    <div><span class="text-muted">Document #:</span> <strong>${order.orderId}</strong></div>
                     <div><span class="text-muted">Date:</span> <strong>${order.date}</strong></div>
                     <div><span class="text-muted">Customer:</span> <strong>${order.customerName}</strong></div>
                     <div><span class="text-muted">Representative:</span> <strong>${order.merchantName}</strong></div>
@@ -1261,6 +1372,45 @@
                 </div>
             `;
             document.getElementById('receipt-modal').classList.remove('hidden');
+        }
+
+        async function sendDocumentEmail() {
+            if (!activeReceiptOrder) return;
+            const email = document.getElementById('receipt-email-input').value.trim();
+            const docType = document.getElementById('receipt-doc-type').value;
+            const btn = document.getElementById('send-receipt-email-btn');
+
+            if (!email || !email.includes('@')) {
+                showToast('Please enter a valid email address.');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'Sending...';
+
+            try {
+                const res = await apiPost({
+                    action: 'sendDocument',
+                    order: activeReceiptOrder,
+                    recipientEmail: email,
+                    docType: docType
+                });
+                portalData = res.data;
+                activeReceiptOrder.pdfUrl = res.pdfUrl;
+                syncAllViews();
+                showToast(res.message);
+
+                const linkBox = document.getElementById('receipt-drive-link');
+                if (res.pdfUrl) {
+                    linkBox.innerHTML = `<i class="fas fa-check-circle mr-1"></i> Sent! <a href="${res.pdfUrl}" target="_blank" class="underline font-semibold">Open Saved PDF in Drive</a>`;
+                    linkBox.classList.remove('hidden');
+                }
+            } catch (err) {
+                showToast('Email Error: ' + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Send PDF';
+            }
         }
     </script>
 </body>
