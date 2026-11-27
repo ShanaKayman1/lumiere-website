@@ -1454,6 +1454,18 @@
                 btn.textContent = 'Send PDF';
             }
         }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedPin = localStorage.getItem(STORAGE_PIN_KEY);
+            if (savedPin) {
+                document.getElementById('login-pin').value = savedPin;
+                authenticateWithPin(savedPin, true);
+            }
+        });
+
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js').catch(() => {});
+        }
     </script>
 </body>
 </html>
